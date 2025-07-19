@@ -19,13 +19,13 @@ const Contact = () => {
         <div className="flex flex-col justify-center items-start gap-6 text-gray-700">
           <p className="font-semibold text-xl text-[#052659]">Our Store</p>
           <p>
-            FRD Nutrient HQ <br />
-            54709 Willms Station, <br />
-            Suite 350, Washington, USA
+            FRD Nutrient <br />
+            Dev Colony Gali, 1, Delhi Rd, <br />
+            Rohtak, Haryana 124001
           </p>
           <p>
-            Tel: (415) 555-0132 <br />
-            Email: support@frdnutrient.com
+            +91 92781 60000 <br />
+            frdgym.com
           </p>
           <p className="font-semibold text-xl text-[#052659]">Careers at FRD Nutrient</p>
           <p>Join our team and grow with the leaders in sports nutrition.</p>
