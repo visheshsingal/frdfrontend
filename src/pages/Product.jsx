@@ -44,18 +44,18 @@ const Product = () => {
         {/* Product Info Section */}
         <div className="flex-1 px-2">
           <h1 className="text-3xl font-semibold">{productData.name}</h1>
-          <div className="flex items-center gap-1 mt-2">
+          {/* <div className="flex items-center gap-1 mt-2">
             {[...Array(4)].map((_, i) => (
               <img key={i} src={assets.star_icon} className="w-4" alt="star" />
-            ))}
-            <img src={assets.star_dull_icon} className="w-4" alt="star" />
-            <p className="pl-2 text-gray-500">(122)</p>
-          </div>
+            ))} */}
+            {/* <img src={assets.star_dull_icon} className="w-4" alt="star" /> */}
+            {/* <p className="pl-2 text-gray-500">(122)</p> */}
+          {/* </div> */}
           <p className="mt-5 text-3xl font-bold text-[#052659]">{currency}{productData.price}</p>
           <p className="mt-5 text-gray-600 md:w-4/5">{productData.description}</p>
 
           <div className="flex flex-col gap-4 my-8">
-            <p className="font-medium">Select Size</p>
+            {/* <p className="font-medium">Select Size</p> */}
             <div className="flex gap-2">
               {productData.sizes.map((item, index) => (
                 <button
