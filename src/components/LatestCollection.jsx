@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import Title from './Title'
 import ProductItem from './ProductItem'
+import { motion } from 'framer-motion'
 
 const LatestCollection = () => {
   const { products } = useContext(ShopContext)
@@ -13,6 +14,7 @@ const LatestCollection = () => {
 
   return (
     <div className="my-16">
+      {/* Title */}
       <div className="text-center py-8">
         <Title text1={'LATEST'} text2={'COLLECTIONS'} />
         <p className="w-3/4 md:w-1/2 m-auto text-xs sm:text-sm md:text-base text-gray-600">
@@ -20,6 +22,70 @@ const LatestCollection = () => {
         </p>
       </div>
 
+      {/* Feature Boxes */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <motion.div
+          className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition duration-300"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+        >
+          <img
+            src="https://images.pexels.com/photos/33053115/pexels-photo-33053115.jpeg"
+            alt="Natural Ingredients"
+            className="h-52 w-full object-cover"
+          />
+          <div className="p-6">
+            <h3 className="text-xl font-semibold mb-2">Made with Natural Ingredients</h3>
+            <p className="text-gray-600 text-sm">
+              Our supplements are crafted from premium natural sources, ensuring the best results without harmful additives. Stay strong, stay healthy with nature-powered formulas.
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition duration-300"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
+          <img
+            src="https://images.pexels.com/photos/33060540/pexels-photo-33060540.jpeg"
+            alt="Performance Boost"
+            className="h-52 w-full object-cover"
+          />
+          <div className="p-6">
+            <h3 className="text-xl font-semibold mb-2">Engineered for Performance</h3>
+            <p className="text-gray-600 text-sm">
+              Designed for athletes seeking real impact — faster recovery, improved endurance, and noticeable strength gains. Formulated with cutting-edge research in mind.
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition duration-300"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+          <img
+            src="https://images.pexels.com/photos/9845424/pexels-photo-9845424.jpeg"
+            alt="Safe & Certified"
+            className="h-52 w-full object-cover"
+          />
+          <div className="p-6">
+            <h3 className="text-xl font-semibold mb-2">Tested, Trusted & Certified</h3>
+            <p className="text-gray-600 text-sm">
+              Every product undergoes rigorous quality testing to ensure safety, purity, and effectiveness. Certified by industry standards — your health is our priority.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Latest Products */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
         {latestProducts.map((item, index) => (
           <ProductItem

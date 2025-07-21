@@ -18,7 +18,7 @@ const About = () => {
         />
         <div className="flex flex-col justify-center gap-6 md:w-2/4 text-gray-600">
           <p>
-            FRD Nutrient was founded with a vision to empower fitness enthusiasts and athletes by providing premium quality gym supplements. 
+            FRD Nutrition was founded with a vision to empower fitness enthusiasts and athletes by providing premium quality gym supplements. 
             Our goal is simple — to support your performance, strength, and recovery with products you can trust.
           </p>
           <p>
@@ -26,7 +26,7 @@ const About = () => {
           </p>
           <b className="text-[#052659]">Our Mission</b>
           <p>
-            At FRD Nutrient, we are dedicated to delivering quality, transparency, and excellence. Our mission is to fuel your journey with the best products and seamless service, every step of the way.
+            At FRD Nutrition, we are dedicated to delivering quality, transparency, and excellence. Our mission is to fuel your journey with the best products and seamless service, every step of the way.
           </p>
         </div>
       </div>
