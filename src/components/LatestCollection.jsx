@@ -32,14 +32,14 @@ const LatestCollection = () => {
           transition={{ delay: 0.1, duration: 0.6 }}
         >
           <img
-            src="https://images.pexels.com/photos/33053115/pexels-photo-33053115.jpeg"
+            src="https://images.pexels.com/photos/1390403/pexels-photo-1390403.jpeg"
             alt="Natural Ingredients"
             className="h-52 w-full object-cover"
           />
           <div className="p-6">
-            <h3 className="text-xl font-semibold mb-2">Made with Natural Ingredients</h3>
+            <h3 className="text-xl font-semibold mb-2">Your Daily Edge</h3>
             <p className="text-gray-600 text-sm">
-              Our supplements are crafted from premium natural sources, ensuring the best results without harmful additives. Stay strong, stay healthy with nature-powered formulas.
+            Made to fit your active lifestyle, our supplements help you stay energized, recover faster, and perform at your best — whenever life demands more.
             </p>
           </div>
         </motion.div>
