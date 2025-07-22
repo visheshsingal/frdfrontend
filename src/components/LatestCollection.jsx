@@ -22,8 +22,21 @@ const LatestCollection = () => {
         </p>
       </div>
 
+      {/* Latest Products */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 mb-12">
+        {latestProducts.map((item, index) => (
+          <ProductItem
+            key={index}
+            id={item._id}
+            image={item.image}
+            name={item.name}
+            price={item.price}
+          />
+        ))}
+      </div>
+
       {/* Feature Boxes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div
           className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition duration-300"
           initial={{ opacity: 0, y: 30 }}
@@ -39,7 +52,7 @@ const LatestCollection = () => {
           <div className="p-6">
             <h3 className="text-xl font-semibold mb-2">Your Daily Edge</h3>
             <p className="text-gray-600 text-sm">
-            Made to fit your active lifestyle, our supplements help you stay energized, recover faster, and perform at your best — whenever life demands more.
+              Made to fit your active lifestyle, our supplements help you stay energized, recover faster, and perform at your best — whenever life demands more.
             </p>
           </div>
         </motion.div>
@@ -83,19 +96,6 @@ const LatestCollection = () => {
             </p>
           </div>
         </motion.div>
-      </div>
-
-      {/* Latest Products */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-        {latestProducts.map((item, index) => (
-          <ProductItem
-            key={index}
-            id={item._id}
-            image={item.image}
-            name={item.name}
-            price={item.price}
-          />
-        ))}
       </div>
     </div>
   )

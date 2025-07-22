@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext'
-import { assets } from '../assets/assets'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import RelatedProducts from '../components/RelatedProducts'
 
 const Product = () => {
@@ -9,7 +10,6 @@ const Product = () => {
   const { products, currency, addToCart } = useContext(ShopContext)
   const [productData, setProductData] = useState(false)
   const [image, setImage] = useState('')
-  const [size, setSize] = useState('')
 
   useEffect(() => {
     const selectedProduct = products.find((item) => item._id === productId)
@@ -44,34 +44,15 @@ const Product = () => {
         {/* Product Info Section */}
         <div className="flex-1 px-2">
           <h1 className="text-3xl font-semibold">{productData.name}</h1>
-          {/* <div className="flex items-center gap-1 mt-2">
-            {[...Array(4)].map((_, i) => (
-              <img key={i} src={assets.star_icon} className="w-4" alt="star" />
-            ))} */}
-            {/* <img src={assets.star_dull_icon} className="w-4" alt="star" /> */}
-            {/* <p className="pl-2 text-gray-500">(122)</p> */}
-          {/* </div> */}
           <p className="mt-5 text-3xl font-bold text-[#052659]">{currency}{productData.price}</p>
           <p className="mt-5 text-gray-600 md:w-4/5">{productData.description}</p>
 
-          <div className="flex flex-col gap-4 my-8">
-            {/* <p className="font-medium">Select Size</p> */}
-            <div className="flex gap-2">
-              {productData.sizes.map((item, index) => (
-                <button
-                  onClick={() => setSize(item)}
-                  className={`border py-2 px-4 rounded ${item === size ? 'border-[#052659] bg-[#052659] text-white' : 'hover:border-[#052659]'}`}
-                  key={index}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <button
-            onClick={() => addToCart(productData._id, size)}
-            className="bg-[#052659] hover:bg-[#031c3e] text-white px-8 py-3 rounded transition text-sm"
+            onClick={() => {
+              addToCart(productData._id)
+              toast.success('Product added to cart successfully!')
+            }}
+            className="bg-[#052659] hover:bg-[#031c3e] text-white px-8 py-3 rounded transition text-sm mt-8"
           >
             ADD TO CART
           </button>
@@ -85,11 +66,10 @@ const Product = () => {
         </div>
       </div>
 
-      {/* Description & Reviews */}
+      {/* Description */}
       <div className="mt-20 px-2">
         <div className="flex">
           <b className="border px-5 py-3 text-sm bg-[#052659] text-white">Description</b>
-          {/* <p className="border px-5 py-3 text-sm text-gray-600 cursor-pointer">Reviews (122)</p> */}
         </div>
         <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500">
           <p>
