@@ -1,96 +1,95 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { ShopContext } from '../context/ShopContext'
-import Title from './Title'
-import ProductItem from './ProductItem'
-import { motion, AnimatePresence } from 'framer-motion'
-
-const banners = [
-  {
-    image: 'https://i.ibb.co/V0YPHBQ3/1.jpg',
-    title: 'Fuel Your Workout',
-    desc: 'Maximize energy & endurance with top-rated pre-workout blends.'
-  },
-  {
-    image: 'https://i.ibb.co/nq9FnzQn/2.jpg',
-    title: 'Recover Like a Pro',
-    desc: 'Specialized formulas for faster recovery & better performance.'
-  }
-]
+import React, { useContext, useEffect, useState } from 'react';
+import { ShopContext } from '../context/ShopContext';
+import Title from './Title';
+import ProductItem from './ProductItem';
+import { motion } from 'framer-motion';
 
 const BestSeller = () => {
-  const { products } = useContext(ShopContext)
-  const [bestSeller, setBestSeller] = useState([])
-  const [currentBanner, setCurrentBanner] = useState(0)
+  const { products, currency } = useContext(ShopContext);
+  const [justLaunched, setJustLaunched] = useState([]);
 
   useEffect(() => {
-    const bestProduct = products.filter(item => item.bestseller)
-    setBestSeller(bestProduct.slice(0, 5))
-  }, [products])
+    const filtered = products.filter(item => {
+      const sub = item.subCategory;
+      if (!sub) return false;
+      if (Array.isArray(sub)) {
+        return sub.map(s => s.toLowerCase()).includes("just launched");
+      }
+      return sub.toLowerCase() === "just launched";
+    });
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentBanner(prev => (prev + 1) % banners.length)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
+    setJustLaunched(filtered.slice(0, 6));
+  }, [products]);
 
   return (
-    <div className='my-16 bg-white p-4 rounded shadow'>
+    <div className='my-16 bg-white px-4 py-10 rounded-lg shadow-md border border-blue-50'>
       {/* Section Title */}
-      <div className='text-center text-3xl text-[#052659] font-bold py-4'>
-        <Title text1={'BEST'} text2={'SELLERS'} />
-        <p className='w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600 mt-2'>
-          Discover our top-selling gym supplements, trusted by fitness enthusiasts for performance, recovery, and strength.
+      <div className='text-center mb-8'>
+        <Title text1={'JUST'} text2={'LAUNCHED'} />
+        <p className='w-3/4 md:w-1/2 mx-auto text-sm text-[#052659]/80 mt-2'>
+          Discover our newest additions, crafted to fuel your strength and health journey with the latest innovation.
         </p>
       </div>
 
-      {/* Banner Carousel with Image & Text Below */}
-      <div className="w-full max-w-3xl mx-auto overflow-hidden rounded-lg shadow-lg mb-8">
-        <div className="relative">
-          <AnimatePresence mode='wait'>
+      {/* Product Grid */}
+      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mt-10 mb-12'>
+        {justLaunched.length > 0 ? (
+          justLaunched.map((item, index) => (
             <motion.div
-              key={currentBanner}
-              className="w-full flex flex-col items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.8 }}
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="hover:shadow-lg transition-shadow duration-300"
             >
-              <img
-                src={banners[currentBanner].image}
-                alt={banners[currentBanner].title}
-                className="w-full object-contain"
+              <ProductItem
+                id={item._id}
+                name={item.name}
+                image={item.image}
+                price={item.price}
+                currency={currency}
               />
-              <div className="p-4 text-center">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#052659]">{banners[currentBanner].title}</h2>
-                <p className="text-sm sm:text-base text-gray-700 mt-2">{banners[currentBanner].desc}</p>
-              </div>
             </motion.div>
-          </AnimatePresence>
+          ))
+        ) : (
+          <p className="col-span-full text-center text-[#052659]/70">
+            No 'Just Launched' products found. Check back soon!
+          </p>
+        )}
+      </div>
+
+      {/* Promotional Banner */}
+      <motion.div
+        className="w-full max-w-5xl mx-auto overflow-hidden rounded-xl shadow-lg border border-blue-100"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="relative">
+          <img
+            src="https://sunnyhealthfitness.com/cdn/shop/articles/pre-workout-drink-and-post-workout-drink-for-peak-performance-01_750x.jpg?v=1728586350"
+            alt="Just Launched Banner"
+            className="w-full object-cover h-60 sm:h-72 lg:h-80"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#052659]/80 to-transparent"></div>
         </div>
-      </div>
-
-      {/* Best Sellers Grid */}
-      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6'>
-        {bestSeller.map((item, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1, duration: 0.5 }}
-          >
-            <ProductItem
-              id={item._id}
-              name={item.name}
-              image={item.image}
-              price={item.price}
-            />
-          </motion.div>
-        ))}
-      </div>
+        <div className="p-6 bg-gradient-to-br from-blue-50 to-white text-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#052659]">
+            Fresh Arrivals, <span className="text-blue-600">Peak Performance</span>
+          </h2>
+          <p className="text-sm sm:text-base text-[#052659]/90 mt-2">
+            New formulas. Better blends. Everything you need to take your fitness to the next level.
+          </p>
+          <button className="mt-4 px-6 py-2 bg-[#052659] hover:bg-blue-800 text-white font-medium rounded-lg transition-colors duration-300">
+            Shop New Arrivals
+          </button>
+        </div>
+      </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default BestSeller
+
+export default BestSeller;

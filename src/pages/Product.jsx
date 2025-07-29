@@ -8,44 +8,51 @@ import RelatedProducts from '../components/RelatedProducts'
 const Product = () => {
   const { productId } = useParams()
   const { products, currency, addToCart } = useContext(ShopContext)
-  const [productData, setProductData] = useState(false)
+  const [productData, setProductData] = useState(null)
   const [image, setImage] = useState('')
 
   useEffect(() => {
     const selectedProduct = products.find((item) => item._id === productId)
     if (selectedProduct) {
       setProductData(selectedProduct)
-      setImage(selectedProduct.image[0])
+      setImage(selectedProduct.image?.[0] || '')
     }
   }, [productId, products])
 
-  return productData ? (
-    <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100 text-[#052659]">
+  if (!productData) {
+    return <div className="p-10 text-center text-gray-500">Loading product...</div>
+  }
+
+  return (
+    <div className="border-t-2 pt-10 text-[#052659]">
       <div className="flex gap-12 flex-col sm:flex-row">
 
         {/* Images Section */}
         <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
           <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll sm:w-[18.7%] w-full gap-2">
-            {productData.image.map((item, index) => (
+            {productData.image?.map((item, index) => (
               <img
                 onClick={() => setImage(item)}
                 src={item}
                 key={index}
                 className={`w-[24%] sm:w-full cursor-pointer hover:scale-105 transition ${image === item ? 'border-2 border-[#052659]' : ''}`}
-                alt=""
+                alt={`product-thumbnail-${index}`}
               />
             ))}
           </div>
           <div className="w-full sm:w-[80%]">
-            <img className="w-full h-auto rounded shadow" src={image} alt="" />
+            <img className="w-full h-auto rounded shadow" src={image} alt="main product" />
           </div>
         </div>
 
         {/* Product Info Section */}
         <div className="flex-1 px-2">
           <h1 className="text-3xl font-semibold">{productData.name}</h1>
-          <p className="mt-5 text-3xl font-bold text-[#052659]">{currency}{productData.price}</p>
-          <p className="mt-5 text-gray-600 md:w-4/5">{productData.description}</p>
+          <p className="mt-2 text-sm text-gray-500">Category: <span className="text-[#052659] font-medium">{productData.category}</span></p>
+          <p className="text-sm text-gray-500 mb-2">Subcategory: <span className="text-[#052659] font-medium">{productData.subCategory}</span></p>
+
+          <p className="mt-2 text-3xl font-bold text-[#052659]">{currency}{productData.price}</p>
+          <p className="mt-4 text-gray-600 md:w-4/5">{productData.description}</p>
 
           <button
             onClick={() => {
@@ -84,8 +91,6 @@ const Product = () => {
       {/* Related Products */}
       <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
     </div>
-  ) : (
-    <div className="opacity-0"></div>
   )
 }
 

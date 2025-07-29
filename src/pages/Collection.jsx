@@ -1,43 +1,85 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { ShopContext } from '../context/ShopContext'
-import Title from '../components/Title'
-import ProductItem from '../components/ProductItem'
+import React, { useContext, useEffect, useState } from 'react';
+import { ShopContext } from '../context/ShopContext';
+import Title from '../components/Title';
+import ProductItem from '../components/ProductItem';
+import { useLocation } from 'react-router-dom';
 
 const Collection = () => {
-  const { products, search, showSearch } = useContext(ShopContext)
-  const [filteredProducts, setFilteredProducts] = useState([])
-  const [sortType, setSortType] = useState('relevant')
+  const { products, search, showSearch } = useContext(ShopContext);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [sortType, setSortType] = useState('relevant');
+  const [mainCategory, setMainCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  const [price, setPrice] = useState(6000);
 
-  const applyFilterAndSort = () => {
-    let filtered = [...products]
+  const location = useLocation();
+
+  // Read category from URL if present
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cat = params.get('category');
+    if (cat) {
+      setMainCategory(cat);
+    }
+  }, [location.search]);
+
+  const categories = [
+    'Protein',
+    'Creatine',
+    'BCAA',
+    'Mass Gainer',
+    'Pre Workout',
+    'Post Workout',
+    'Vitamins'
+  ];
+
+  const subCategories = [
+    'Popular',
+    'Just Launched',
+    "Editor's Choice",
+    'Trending'
+  ];
+
+  const applyFilters = () => {
+    let filtered = [...products];
 
     if (showSearch && search) {
       filtered = filtered.filter(item =>
         item.name.toLowerCase().includes(search.toLowerCase())
-      )
+      );
     }
+
+    if (mainCategory) {
+      filtered = filtered.filter(item => item.category === mainCategory);
+    }
+
+    if (subCategory) {
+      filtered = filtered.filter(item => item.subCategory === subCategory);
+    }
+
+    filtered = filtered.filter(item => item.price <= price);
 
     switch (sortType) {
       case 'low-high':
-        filtered.sort((a, b) => a.price - b.price)
-        break
+        filtered.sort((a, b) => a.price - b.price);
+        break;
       case 'high-low':
-        filtered.sort((a, b) => b.price - a.price)
-        break
+        filtered.sort((a, b) => b.price - a.price);
+        break;
       default:
-        break
+        break;
     }
 
-    setFilteredProducts(filtered)
-  }
+    setFilteredProducts(filtered);
+  };
 
   useEffect(() => {
-    applyFilterAndSort()
-  }, [search, showSearch, products, sortType])
+    applyFilters();
+  }, [search, showSearch, products, sortType, mainCategory, subCategory, price]);
 
   return (
-    <div className="pt-10 border-t">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 px-4">
+    <div className="px-4 md:px-12 py-8">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <Title text1="OUR" text2="PRODUCTS" />
         <select
           value={sortType}
@@ -50,23 +92,61 @@ const Collection = () => {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((item) => (
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <select
+          value={mainCategory}
+          onChange={(e) => setMainCategory(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded"
+        >
+          <option value="">All Categories</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+
+        <select
+          value={subCategory}
+          onChange={(e) => setSubCategory(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded"
+        >
+          <option value="">All Tags</option>
+          {subCategories.map((sub) => (
+            <option key={sub} value={sub}>{sub}</option>
+          ))}
+        </select>
+
+        <div className="flex items-center gap-2">
+          <label htmlFor="price" className="text-gray-700 font-medium whitespace-nowrap">Max Price: ₹{price}</label>
+          <input
+            id="price"
+            type="range"
+            min="100"
+            max="6000"
+            step="100"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="w-[200px]"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredProducts.length ? (
+          filteredProducts.map((product) => (
             <ProductItem
-              key={item._id}
-              name={item.name}
-              id={item._id}
-              price={item.price}
-              image={item.image}
+              key={product._id}
+              id={product._id}
+              name={product.name}
+              price={product.price}
+              image={product.image}
             />
           ))
         ) : (
-          <p className="col-span-4 text-center text-gray-500">No products found.</p>
+          <p className="text-gray-500 col-span-full">No products found.</p>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Collection
+export default Collection;
