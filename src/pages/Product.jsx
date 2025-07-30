@@ -51,7 +51,21 @@ const Product = () => {
           <p className="mt-2 text-sm text-gray-500">Category: <span className="text-[#052659] font-medium">{productData.category}</span></p>
           <p className="text-sm text-gray-500 mb-2">Subcategory: <span className="text-[#052659] font-medium">{productData.subCategory}</span></p>
 
-          <p className="mt-2 text-3xl font-bold text-[#052659]">{currency}{productData.price}</p>
+          {/* Price Section with Discount */}
+          {productData.discount > 0 ? (
+            <div className="mt-2 text-3xl font-bold text-[#052659] space-x-3">
+              <span className="text-gray-400 line-through text-2xl">{currency}{productData.price}</span>
+              <span className="text-green-600">
+                {currency}{Math.round(productData.price - (productData.price * productData.discount / 100))}
+              </span>
+              <span className="bg-green-100 text-green-700 text-sm px-2 py-1 rounded">
+                -{productData.discount}%
+              </span>
+            </div>
+          ) : (
+            <p className="mt-2 text-3xl font-bold text-[#052659]">{currency}{productData.price}</p>
+          )}
+
           <p className="mt-4 text-gray-600 md:w-4/5">{productData.description}</p>
 
           <button

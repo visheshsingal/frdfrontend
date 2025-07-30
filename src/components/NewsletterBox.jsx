@@ -1,17 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShopContext } from '../context/ShopContext';
-import ProductItem from './ProductItem';
 
 const NewsletterBox = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const { products } = useContext(ShopContext);
+  const { products, currency } = useContext(ShopContext);
   const [trendingProducts, setTrendingProducts] = useState([]);
 
-  // Filter trending products
-  React.useEffect(() => {
+  useEffect(() => {
     const filtered = products.filter(item => {
       const sub = item.subCategory;
       if (!sub) return false;
@@ -30,6 +28,8 @@ const NewsletterBox = () => {
     setTimeout(() => setSubscribed(false), 3000);
   };
 
+  const formatPrice = (price) => price.toFixed(2);
+
   return (
     <div className="space-y-12">
       {/* Trending Products Section */}
@@ -45,22 +45,50 @@ const NewsletterBox = () => {
           </div>
 
           <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-10'>
-            {trendingProducts.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-              >
-                <ProductItem
-                  id={item._id}
-                  name={item.name}
-                  image={item.image}
-                  price={item.price}
-                />
-              </motion.div>
-            ))}
+            {trendingProducts.map((item, index) => {
+              const hasDiscount = item.discount > 0;
+              const discountedPrice = hasDiscount
+                ? item.price - (item.price * item.discount) / 100
+                : item.price;
+
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="border p-3 rounded-lg bg-white shadow hover:shadow-lg transition duration-300"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-36 object-contain mb-2"
+                  />
+                  <h4 className="text-sm font-semibold text-[#052659] line-clamp-2">{item.name}</h4>
+
+                  <div className="mt-1">
+                    {hasDiscount ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#052659] font-bold text-sm">
+                          {currency} {formatPrice(discountedPrice)}
+                        </span>
+                        <span className="line-through text-gray-400 text-xs">
+                          {currency} {formatPrice(item.price)}
+                        </span>
+                        <span className="text-green-600 text-xs font-semibold">
+                          -{item.discount}%
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-[#052659] font-bold text-sm">
+                        {currency} {formatPrice(item.price)}
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -73,7 +101,6 @@ const NewsletterBox = () => {
         transition={{ duration: 0.6 }}
         className="relative bg-gradient-to-r from-blue-50 to-white py-12 px-6 rounded-xl shadow-xl overflow-hidden border border-blue-100"
       >
-        {/* Decorative elements */}
         <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-blue-100/30"></div>
         <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-blue-100/20"></div>
         

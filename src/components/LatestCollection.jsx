@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import Title from './Title';
-import ProductItem from './ProductItem';
 import { motion } from 'framer-motion';
 
 const LatestCollection = () => {
@@ -9,7 +8,6 @@ const LatestCollection = () => {
   const [popularProducts, setPopularProducts] = useState([]);
 
   useEffect(() => {
-    // Filter products with "Popular" subCategory (handling both string and array cases)
     const popular = products.filter(item => {
       const sub = item.subCategory;
       if (!sub) return false;
@@ -18,12 +16,15 @@ const LatestCollection = () => {
       }
       return sub.toLowerCase() === "popular";
     });
-    setPopularProducts(popular.slice(0, 12)); // Limit to 12 products
+    setPopularProducts(popular.slice(0, 12));
   }, [products]);
+
+  const formatPrice = (price) => {
+    return price.toFixed(2);
+  };
 
   return (
     <div className="my-16 bg-white px-4 py-10 rounded-lg shadow-md border border-blue-50">
-      {/* Title Section */}
       <div className="text-center mb-10">
         <Title text1={'POPULAR'} text2={'PRODUCTS'} />
         <p className="w-3/4 md:w-1/2 mx-auto text-sm text-[#052659]/80 mt-3">
@@ -31,27 +32,52 @@ const LatestCollection = () => {
         </p>
       </div>
 
-      {/* Popular Products Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
         {popularProducts.length > 0 ? (
-          popularProducts.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="hover:shadow-lg transition-shadow duration-300"
-            >
-              <ProductItem
-                id={item._id}
-                name={item.name}
-                image={item.image}
-                price={item.price}
-                currency={currency}
-              />
-            </motion.div>
-          ))
+          popularProducts.map((item, index) => {
+            const hasDiscount = item.discount > 0;
+            const discountedPrice = hasDiscount
+              ? item.price - (item.price * item.discount) / 100
+              : item.price;
+
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="hover:shadow-lg transition-shadow duration-300 bg-white rounded-lg p-3 border"
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-36 object-contain mb-2"
+                />
+                <h4 className="text-sm font-semibold text-[#052659] line-clamp-2">{item.name}</h4>
+
+                <div className="mt-1">
+                  {hasDiscount ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-[#052659] font-bold text-sm">
+                        {currency} {formatPrice(discountedPrice)}
+                      </span>
+                      <span className="line-through text-gray-400 text-xs">
+                        {currency} {formatPrice(item.price)}
+                      </span>
+                      <span className="text-green-600 text-xs font-semibold">
+                        -{item.discount}%
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-[#052659] font-bold text-sm">
+                      {currency} {formatPrice(item.price)}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })
         ) : (
           <p className="col-span-full text-center text-[#052659]/70">
             No popular products found. Check back soon!
@@ -59,7 +85,6 @@ const LatestCollection = () => {
         )}
       </div>
 
-      {/* Health Benefit Banner */}
       <motion.div
         className="w-full max-w-5xl mx-auto overflow-hidden rounded-xl shadow-lg border border-blue-100"
         initial={{ opacity: 0, y: 30 }}

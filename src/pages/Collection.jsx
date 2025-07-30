@@ -57,14 +57,35 @@ const Collection = () => {
       filtered = filtered.filter(item => item.subCategory === subCategory);
     }
 
-    filtered = filtered.filter(item => item.price <= price);
+    filtered = filtered.filter(item => {
+      const finalPrice = item.discount > 0
+        ? Math.round(item.price - (item.price * item.discount) / 100)
+        : item.price;
+      return finalPrice <= price;
+    });
 
     switch (sortType) {
       case 'low-high':
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => {
+          const aPrice = a.discount > 0
+            ? a.price - (a.price * a.discount) / 100
+            : a.price;
+          const bPrice = b.discount > 0
+            ? b.price - (b.price * b.discount) / 100
+            : b.price;
+          return aPrice - bPrice;
+        });
         break;
       case 'high-low':
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => {
+          const aPrice = a.discount > 0
+            ? a.price - (a.price * a.discount) / 100
+            : a.price;
+          const bPrice = b.discount > 0
+            ? b.price - (b.price * b.discount) / 100
+            : b.price;
+          return bPrice - aPrice;
+        });
         break;
       default:
         break;
@@ -116,7 +137,9 @@ const Collection = () => {
         </select>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="price" className="text-gray-700 font-medium whitespace-nowrap">Max Price: ₹{price}</label>
+          <label htmlFor="price" className="text-gray-700 font-medium whitespace-nowrap">
+            Max Price: ₹{price}
+          </label>
           <input
             id="price"
             type="range"
@@ -132,15 +155,23 @@ const Collection = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.length ? (
-          filteredProducts.map((product) => (
-            <ProductItem
-              key={product._id}
-              id={product._id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-            />
-          ))
+          filteredProducts.map((product) => {
+            const finalPrice = product.discount > 0
+              ? Math.round(product.price - (product.price * product.discount) / 100)
+              : product.price;
+
+            return (
+              <ProductItem
+                key={product._id}
+                id={product._id}
+                name={product.name}
+                price={finalPrice}
+                image={product.image}
+                originalPrice={product.price}
+                discount={product.discount}
+              />
+            );
+          })
         ) : (
           <p className="text-gray-500 col-span-full">No products found.</p>
         )}

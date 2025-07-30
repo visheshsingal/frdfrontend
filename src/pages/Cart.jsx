@@ -36,6 +36,9 @@ const Cart = () => {
       <div>
         {cartData.map((item, index) => {
           const productData = products.find((product) => product._id === item._id)
+          const originalPrice = productData.price
+          const discount = productData.discount || 0
+          const discountedPrice = Math.round(originalPrice - (originalPrice * discount / 100))
 
           return (
             <div key={index} className="py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4">
@@ -44,7 +47,19 @@ const Cart = () => {
                 <div>
                   <p className="text-xs sm:text-lg font-medium text-[#052659]">{productData.name}</p>
                   <div className="flex items-center gap-5 mt-2 text-gray-600">
-                    <p>{currency}{productData.price}</p>
+                    {discount > 0 ? (
+                      <div className="space-x-2 text-sm sm:text-base">
+                        <span className="line-through text-gray-400">{currency}{originalPrice}</span>
+                        <span className="text-green-600 font-semibold">
+                          {currency}{discountedPrice}
+                        </span>
+                        <span className="bg-green-100 text-green-700 text-xs px-1 py-0.5 rounded">
+                          -{discount}%
+                        </span>
+                      </div>
+                    ) : (
+                      <p>{currency}{originalPrice}</p>
+                    )}
                     <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 rounded">{item.size}</p>
                   </div>
                 </div>

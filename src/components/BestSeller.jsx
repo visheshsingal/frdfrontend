@@ -34,24 +34,33 @@ const BestSeller = () => {
       {/* Product Grid */}
       <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mt-10 mb-12'>
         {justLaunched.length > 0 ? (
-          justLaunched.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="hover:shadow-lg transition-shadow duration-300"
-            >
-              <ProductItem
-                id={item._id}
-                name={item.name}
-                image={item.image}
-                price={item.price}
-                currency={currency}
-              />
-            </motion.div>
-          ))
+          justLaunched.map((item, index) => {
+            const hasDiscount = item.discount && item.discount > 0;
+            const discountedPrice = hasDiscount
+              ? Math.round(item.price - (item.price * item.discount / 100))
+              : item.price;
+
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="hover:shadow-lg transition-shadow duration-300"
+              >
+                <ProductItem
+                  id={item._id}
+                  name={item.name}
+                  image={item.image}
+                  price={discountedPrice}
+                  originalPrice={item.price}
+                  discount={item.discount}
+                  currency={currency}
+                />
+              </motion.div>
+            );
+          })
         ) : (
           <p className="col-span-full text-center text-[#052659]/70">
             No 'Just Launched' products found. Check back soon!
@@ -90,6 +99,5 @@ const BestSeller = () => {
     </div>
   );
 };
-
 
 export default BestSeller;
