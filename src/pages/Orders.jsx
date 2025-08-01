@@ -45,6 +45,9 @@ const Orders = () => {
         <div className='text-2xl'>
             <Title text1={'MY'} text2={'ORDERS'}/>
         </div>
+        <div className='text-center text-sm text-gray-600 mb-4'>
+  If you want to cancel the order, please contact on this number: <span className='font-medium'>+91 9278160000</span>
+</div>
 
         <div>
             {
