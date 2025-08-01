@@ -93,7 +93,7 @@ const Navbar = () => {
 
             {token ? (
               <>
-                <button onClick={() => { navigate('/profile'); setVisible(false) }}>My Profile</button>
+                {/* <button onClick={() => { navigate('/profile'); setVisible(false) }}>My Profile</button> */}
                 <button onClick={() => { navigate('/orders'); setVisible(false) }}>Orders</button>
                 <button onClick={() => { logout(); setVisible(false) }}>Logout</button>
               </>
