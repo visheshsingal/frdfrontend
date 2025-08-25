@@ -58,7 +58,7 @@ const Navbar = () => {
                 <div className="hidden group-hover:block absolute right-0 pt-2 z-20">
                   <div className="flex flex-col gap-2 w-48 py-3 px-4 bg-white text-gray-700 rounded shadow-lg border border-gray-100">
                     <p onClick={() => navigate('/orders')} className="cursor-pointer hover:text-[#052659] text-sm py-1">Orders</p>
-                    <p onClick={() => navigate('/my-facilities')} className="cursor-pointer hover:text-[#052659] text-sm py-1">Facilities</p>
+                    {/* <p onClick={() => navigate('/my-facilities')} className="cursor-pointer hover:text-[#052659] text-sm py-1">Facilities</p> */}
                     <p onClick={logout} className="cursor-pointer hover:text-[#052659] text-sm py-1">Logout</p>
                   </div>
                 </div>
@@ -104,8 +104,9 @@ const Navbar = () => {
 
             {token ? (
               <>
+
                 <button onClick={() => { navigate('/orders'); setVisible(false); }}>Orders</button>
-                <button onClick={() => { navigate('/my-facilities'); setVisible(false); }}>Facilities</button>
+                {/* <button onClick={() => { navigate('/my-facilities'); setVisible(false); }}>Facilities</button> */}
                 <button onClick={() => { logout(); setVisible(false); }}>Logout</button>
               </>
             ) : (
