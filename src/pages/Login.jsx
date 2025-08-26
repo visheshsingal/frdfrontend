@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 const Login = () => {
   const [currentState, setCurrentState] = useState('Login');
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
-  const { token, setToken, navigate, backendUrl, setUser } = useContext(ShopContext);
+  const { token, setToken, navigate, backendUrl, setUser  } = useContext(ShopContext);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -21,6 +21,16 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpCountdown, setOtpCountdown] = useState(0);
   const [resetToken, setResetToken] = useState('');
+  const [requiresOTP, setRequiresOTP] = useState(false);
+
+  // Fitness-related images from Pexels
+  const fitnessImages = [
+    "https://images.pexels.com/photos/2294361/pexels-photo-2294361.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    "https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+  ];
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     if (token) {
@@ -35,6 +45,17 @@ const Login = () => {
     }
     return () => clearTimeout(timer);
   }, [otpCountdown]);
+
+  // Image carousel effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === fitnessImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [fitnessImages.length]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,6 +77,7 @@ const Login = () => {
       if (response.data.requiresOTP) {
         setShowOtpModal(true);
         setOtpCountdown(60);
+        setRequiresOTP(true);
         toast.info('OTP sent to your email');
       } else if (response.data.success) {
         handleAuthSuccess(response.data);
@@ -82,6 +104,7 @@ const Login = () => {
       if (response.data.success) {
         setShowOtpModal(true);
         setOtpCountdown(60);
+        setRequiresOTP(true);
         toast.info('Password reset OTP sent to your email');
       } else {
         toast.error(response.data.message || 'Failed to send reset OTP');
@@ -146,22 +169,43 @@ const Login = () => {
         if (response.data.success) {
           setResetToken(response.data.resetToken);
           setShowOtpModal(false);
+          setRequiresOTP(false);
+          toast.success('OTP verified successfully!');
         }
       } else {
-        const endpoint = currentState === 'Sign Up' ? '/api/user/register' : '/api/user/login';
-        response = await axios.post(`${backendUrl}${endpoint}`, { 
-          ...formData,
+        // For login with OTP verification
+        response = await axios.post(`${backendUrl}/api/user/verify-otp`, { 
+          email: formData.email,
           otp: formData.otp 
         });
 
         if (response.data.success) {
-          handleAuthSuccess(response.data);
-          setShowOtpModal(false);
+          if (currentState === 'Sign Up') {
+            // After successful signup with OTP
+            toast.success('Account created successfully! Please login with your credentials.');
+            setCurrentState('Login');
+            setShowOtpModal(false);
+            setRequiresOTP(false);
+            setFormData({
+              name: '',
+              email: '',
+              password: '',
+              newPassword: '',
+              confirmPassword: '',
+              otp: ''
+            });
+          } else {
+            // For login - THIS IS THE FIXED PART
+            handleAuthSuccess(response.data);
+            setShowOtpModal(false);
+            setRequiresOTP(false);
+            toast.success('Login successful!');
+          }
         }
       }
-    } catch (error) {
-      console.error(error);
-      // toast.error(error.response?.data?.message || 'OTP verification failed');
+    // } catch (error) {
+    //   console.error(error);
+    //   toast.error(error.response?.data?.message || 'OTP verification failed');
     } finally {
       setIsLoading(false);
     }
@@ -195,256 +239,333 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(data.user));
     }
     
-    toast.success(`${currentState} successful!`);
     navigate('/');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-        {!forgotPasswordMode ? (
-          <>
-            <div className="text-center">
-              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-                {currentState === 'Login' ? 'Sign in to your account' : 'Create a new account'}
-              </h2>
-            </div>
-
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-              {currentState === 'Sign Up' && (
-                <div className="rounded-md shadow-sm -space-y-px">
-                  <div>
-                    <label htmlFor="name" className="sr-only">Name</label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      required
-                      className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                      placeholder="Full Name"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="rounded-md shadow-sm -space-y-px">
-                <div>
-                  <label htmlFor="email" className="sr-only">Email address</label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                    placeholder="Email address"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="password" className="sr-only">Password</label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete={currentState === 'Login' ? 'current-password' : 'new-password'}
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    minLength={currentState === 'Sign Up' ? 8 : undefined}
-                  />
-                </div>
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+      {/* Left side - Image Carousel (Visible on both desktop and mobile) */}
+      <div className="flex-1 relative overflow-hidden">
+        {fitnessImages.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <img
+              src={image}
+              alt={`Fitness ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+              <div className="text-center text-white p-8">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Transform Your Body</h2>
+                <p className="text-lg md:text-xl">
+                  {index === 0 && "Join thousands of members achieving their fitness goals"}
+                  {index === 1 && "Expert trainers and world-class facilities"}
+                  {index === 2 && "Start your fitness journey today"}
+                </p>
               </div>
+            </div>
+          </div>
+        ))}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-10">
+          {fitnessImages.map((_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full ${
+                index === currentImageIndex ? 'bg-white' : 'bg-gray-400'
+              }`}
+              onClick={() => setCurrentImageIndex(index)}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
 
-              <div className="flex items-center justify-between">
-                {currentState === 'Login' && (
-                  <div className="text-sm">
-                    <button
-                      type="button"
-                      onClick={() => setForgotPasswordMode(true)}
-                      className="font-medium text-blue-600 hover:text-blue-500"
-                    >
-                      Forgot your password?
-                    </button>
+      {/* Right side - Form */}
+      <div className="w-full md:w-1/2 lg:w-2/5 xl:w-1/3 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+          {/* Logo */}
+          <div className="text-center">
+            <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+              <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            
+            <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
+              {!forgotPasswordMode 
+                ? (currentState === 'Login' ? 'Welcome Back!' : 'Create Account') 
+                : 'Reset Password'}
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              {!forgotPasswordMode 
+                ? (currentState === 'Login' 
+                    ? 'Sign in to continue your fitness journey' 
+                    : 'Join us and start transforming your body today')
+                : 'Recover your account access'}
+            </p>
+          </div>
+
+          {!forgotPasswordMode ? (
+            <>
+              <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                {currentState === 'Sign Up' && (
+                  <div className="rounded-md shadow-sm -space-y-px">
+                    <div className="mb-4">
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        required
+                        className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your full name"
+                        value={formData.name}
+                        onChange={handleChange}
+                      />
+                    </div>
                   </div>
                 )}
-                <div className="text-sm">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentState(prev => prev === 'Login' ? 'Sign Up' : 'Login')}
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    {currentState === 'Login' ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
-                  </button>
-                </div>
-              </div>
 
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <span>Processing...</span>
-                  ) : (
-                    <span>{currentState === 'Login' ? 'Sign in' : 'Sign up'}</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          </>
-        ) : (
-          <>
-            <div className="text-center">
-              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-                Reset Your Password
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                {resetToken ? 'Enter your new password' : 'Enter your email to receive a reset OTP'}
-              </p>
-            </div>
-
-            <form 
-              className="mt-8 space-y-6" 
-              onSubmit={resetToken ? handleResetPassword : handleForgotPassword}
-            >
-              {!resetToken ? (
                 <div className="rounded-md shadow-sm -space-y-px">
-                  <div>
-                    <label htmlFor="email" className="sr-only">Email address</label>
+                  <div className="mb-4">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
                     <input
                       id="email"
                       name="email"
                       type="email"
                       autoComplete="email"
                       required
-                      className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                      placeholder="Email address"
+                      className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter your email"
                       value={formData.email}
                       onChange={handleChange}
                     />
                   </div>
-                </div>
-              ) : (
-                <>
-                  <div className="rounded-md shadow-sm -space-y-px">
-                    <div>
-                      <label htmlFor="newPassword" className="sr-only">New Password</label>
-                      <input
-                        id="newPassword"
-                        name="newPassword"
-                        type="password"
-                        required
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                        placeholder="New Password"
-                        value={formData.newPassword}
-                        onChange={handleChange}
-                        minLength="8"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
-                      <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        required
-                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                        placeholder="Confirm Password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        minLength="8"
-                      />
-                    </div>
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete={currentState === 'Login' ? 'current-password' : 'new-password'}
+                      required
+                      className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      minLength={currentState === 'Sign Up' ? 8 : undefined}
+                    />
                   </div>
-                </>
-              )}
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setForgotPasswordMode(false);
-                      setResetToken('');
-                    }}
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    Back to {currentState === 'Login' ? 'Login' : 'Sign Up'}
-                  </button>
                 </div>
-              </div>
 
-              <div>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <span>Processing...</span>
-                  ) : (
-                    <span>{resetToken ? 'Reset Password' : 'Send Reset OTP'}</span>
+                <div className="flex items-center justify-between">
+                  {currentState === 'Login' && (
+                    <div className="text-sm">
+                      <button
+                        type="button"
+                        onClick={() => setForgotPasswordMode(true)}
+                        className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                      >
+                        Forgot your password?
+                      </button>
+                    </div>
                   )}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
+                  <div className="text-sm">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentState(prev => prev === 'Login' ? 'Sign Up' : 'Login')}
+                      className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                    >
+                      {currentState === 'Login' ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
+                    </button>
+                  </div>
+                </div>
 
-        {/* OTP Modal */}
-        {showOtpModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg max-w-sm w-full">
-              <h3 className="text-xl font-semibold mb-4">
-                {forgotPasswordMode ? 'Password Reset Verification' : 'Email Verification'}
-              </h3>
-              <p className="mb-4">
-                We've sent a 6-digit OTP to <strong>{formData.email}</strong>. 
-                Please enter it below to {forgotPasswordMode ? 'reset your password' : 'verify your email'}.
-              </p>
-              
-              <form onSubmit={handleOtpSubmit}>
-                <input
-                  type="text"
-                  name="otp"
-                  value={formData.otp}
-                  onChange={handleChange}
-                  placeholder="Enter OTP"
-                  className="w-full px-3 py-2 border rounded mb-4 text-center text-lg font-mono"
-                  maxLength="6"
-                  pattern="\d{6}"
-                  required
-                />
-                
-                <div className="flex justify-between items-center">
-                  <button
-                    type="button"
-                    onClick={handleResendOtp}
-                    disabled={otpCountdown > 0 || isLoading}
-                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                  >
-                    {otpCountdown > 0 ? `Resend in ${otpCountdown}s` : 'Resend OTP'}
-                  </button>
-                  
+                <div>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? 'Verifying...' : 'Verify'}
+                    {isLoading ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </span>
+                    ) : (
+                      <span>{currentState === 'Login' ? 'Sign in' : 'Sign up'}</span>
+                    )}
                   </button>
                 </div>
               </form>
+
+              {/* Social login options */}
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    {/* <span className="px-2 bg-white text-gray-500">Or continue with</span> */}
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {/* Social login buttons can be added here */}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <form 
+                className="mt-8 space-y-6" 
+                onSubmit={resetToken ? handleResetPassword : handleForgotPassword}
+              >
+                {!resetToken ? (
+                  <div className="rounded-md shadow-sm -space-y-px">
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your email"
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="rounded-md shadow-sm -space-y-px">
+                      <div className="mb-4">
+                        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                        <input
+                          id="newPassword"
+                          name="newPassword"
+                          type="password"
+                          required
+                          className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter new password"
+                          value={formData.newPassword}
+                          onChange={handleChange}
+                          minLength="8"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type="password"
+                          required
+                          className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Confirm your password"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          minLength="8"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="text-sm">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotPasswordMode(false);
+                        setResetToken('');
+                      }}
+                      className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                    >
+                      Back to {currentState === 'Login' ? 'Login' : 'Sign Up'}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </span>
+                    ) : (
+                      <span>{resetToken ? 'Reset Password' : 'Send Reset OTP'}</span>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
+
+          {/* OTP Modal */}
+          {showOtpModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white p-6 rounded-xl max-w-sm w-full shadow-xl">
+                <h3 className="text-xl font-semibold mb-4 text-gray-900">
+                  {forgotPasswordMode ? 'Password Reset Verification' : 'Email Verification'}
+                </h3>
+                <p className="mb-4 text-gray-600">
+                  We've sent a 6-digit OTP to <strong className="text-blue-600">{formData.email}</strong>. 
+                  Please enter it below to {forgotPasswordMode ? 'reset your password' : 'verify your email'}.
+                </p>
+                
+                <form onSubmit={handleOtpSubmit}>
+                  <input
+                    type="text"
+                    name="otp"
+                    value={formData.otp}
+                    onChange={handleChange}
+                    placeholder="Enter OTP"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 text-center text-lg font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxLength="6"
+                    pattern="\d{6}"
+                    required
+                  />
+                  
+                  <div className="flex justify-between items-center">
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={otpCountdown > 0 || isLoading}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {otpCountdown > 0 ? `Resend in ${otpCountdown}s` : 'Resend OTP'}
+                    </button>
+                    
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? 'Verifying...' : 'Verify'}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

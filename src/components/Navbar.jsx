@@ -106,7 +106,7 @@ const Navbar = () => {
               <>
 
                 <button onClick={() => { navigate('/orders'); setVisible(false); }}>Orders</button>
-                {/* <button onClick={() => { navigate('/my-facilities'); setVisible(false); }}>Facilities</button> */}
+                <button onClick={() => { navigate('/my-facilities'); setVisible(false); }}>Facilities</button>
                 <button onClick={() => { logout(); setVisible(false); }}>Logout</button>
               </>
             ) : (
