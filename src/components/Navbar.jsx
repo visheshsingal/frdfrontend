@@ -87,7 +87,7 @@ const Navbar = () => {
             >
               Supplements
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/facilities"
               className={({ isActive }) =>
                 `text-sm uppercase font-medium transition-colors duration-300 hover:text-green-400 ${
@@ -96,7 +96,7 @@ const Navbar = () => {
               }
             >
               Facilities
-            </NavLink>
+            </NavLink> */}
             <NavLink
               to="/about"
               className={({ isActive }) =>
@@ -270,13 +270,13 @@ const Navbar = () => {
             >
               Supplements
             </NavLink>
-            <NavLink
+            {/* <NavLink
               onClick={() => setVisible(false)}
               to="/facilities"
               className={({ isActive }) => (isActive ? 'text-green-400' : '')}
             >
               Facilities
-            </NavLink>
+            </NavLink> */}
             <NavLink
               onClick={() => setVisible(false)}
               to="/about"
