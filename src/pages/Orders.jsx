@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { ShopContext } from '../context/ShopContext'
+import React, { useContext, useEffect, useState } from 'react';
+import { ShopContext } from '../context/ShopContext';
 import Title from '../components/Title';
 import axios from 'axios';
 
@@ -11,25 +11,28 @@ const Orders = () => {
     try {
       if (!token) return;
       const response = await axios.post(
-        backendUrl + '/api/order/userorders',
+        `${backendUrl}/api/order/userorders`,
         {},
         { headers: { token } }
       );
+
       if (response.data.success) {
         let allOrdersItem = [];
         response.data.orders.forEach((order) => {
           order.items.forEach((item) => {
-            item['status'] = order.status;
-            item['payment'] = order.payment;
-            item['paymentMethod'] = order.paymentMethod;
-            item['date'] = order.date;
-            allOrdersItem.push(item);
+            allOrdersItem.push({
+              ...item,
+              status: order.status,
+              payment: order.payment,
+              paymentMethod: order.paymentMethod,
+              date: order.date,
+            });
           });
         });
         setOrderData(allOrdersItem.reverse());
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error loading orders:', error);
     }
   };
 
@@ -54,51 +57,59 @@ const Orders = () => {
             You have no orders yet.
           </p>
         ) : (
-          orderData.map((item, index) => (
-            <div
-              key={index}
-              className="py-5 border-t border-b border-green-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4 hover:bg-neutral-900 transition-colors duration-300"
-            >
-              <div className="flex items-start gap-6 text-sm">
-                <img
-                  className="w-16 sm:w-20 rounded-lg border border-green-700"
-                  src={item.image[0]}
-                  alt={item.name}
-                />
-                <div>
-                  <p className="sm:text-base font-semibold text-green-400">
-                    {item.name}
-                  </p>
-                  <div className="flex items-center gap-4 mt-1 text-base text-gray-300">
-                    <p>
-                      {currency}
-                      {item.price}
-                    </p>
-                    <p>Qty: {item.quantity}</p>
-                  </div>
-                  <p className="mt-1 text-gray-500">
-                    Date:{' '}
-                    <span className="text-gray-400">
-                      {new Date(item.date).toDateString()}
-                    </span>
-                  </p>
-                  <p className="mt-1 text-gray-500">
-                    Payment:{' '}
-                    <span className="text-gray-400">{item.paymentMethod}</span>
-                  </p>
-                </div>
-              </div>
+          orderData.map((item, index) => {
+            // Determine image URL safely
+            const imageUrl =
+              Array.isArray(item.image) && item.image.length > 0
+                ? item.image[0]
+                : item.image || '/placeholder.png'; // fallback image
 
-              <div className="md:w-1/3 flex justify-between md:justify-end items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-green-500 shadow-sm shadow-green-700"></span>
-                  <p className="text-sm md:text-base text-green-400">
-                    {item.status}
-                  </p>
+            return (
+              <div
+                key={index}
+                className="py-5 border-t border-b border-green-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4 hover:bg-neutral-900 transition-colors duration-300"
+              >
+                <div className="flex items-start gap-6 text-sm">
+                  <img
+                    className="w-16 sm:w-20 rounded-lg border border-green-700"
+                    src={imageUrl}
+                    alt={item.name}
+                  />
+                  <div>
+                    <p className="sm:text-base font-semibold text-green-400">
+                      {item.name}
+                    </p>
+                    <div className="flex items-center gap-4 mt-1 text-base text-gray-300">
+                      <p>
+                        {currency}
+                        {item.price}
+                      </p>
+                      <p>Qty: {item.quantity}</p>
+                    </div>
+                    <p className="mt-1 text-gray-500">
+                      Date:{' '}
+                      <span className="text-gray-400">
+                        {new Date(item.date).toDateString()}
+                      </span>
+                    </p>
+                    <p className="mt-1 text-gray-500">
+                      Payment:{' '}
+                      <span className="text-gray-400">{item.paymentMethod}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="md:w-1/3 flex justify-between md:justify-end items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-green-500 shadow-sm shadow-green-700"></span>
+                    <p className="text-sm md:text-base text-green-400">
+                      {item.status}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
