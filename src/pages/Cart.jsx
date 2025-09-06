@@ -16,7 +16,7 @@ const Cart = () => {
           if (cartItems[productId][size] > 0) {
             tempData.push({
               _id: productId,
-              size: size,
+              // size: size,
               quantity: cartItems[productId][size],
             })
           }
@@ -65,7 +65,7 @@ const Cart = () => {
                     ) : (
                       <p>{formatted(originalPrice)}</p>
                     )}
-                    <p className="px-2 sm:px-3 sm:py-1 border border-gray-600 rounded">{item.size}</p>
+                    {/* <p className="px-2 sm:px-3 sm:py-1 border border-gray-600 rounded">{item.size}</p> */}
                   </div>
                 </div>
               </div>

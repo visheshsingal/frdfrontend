@@ -1,46 +1,48 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ShopContext } from '../context/ShopContext'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import RelatedProducts from '../components/RelatedProducts'
+import React, { useContext, useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ShopContext } from '../context/ShopContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import RelatedProducts from '../components/RelatedProducts';
 
 const Product = () => {
-  const { productId } = useParams()
-  const { products, currency, addToCart, user } = useContext(ShopContext)
-  const navigate = useNavigate()
-  const [productData, setProductData] = useState(null)
-  const [image, setImage] = useState('')
+  const navigate = useNavigate();
+  const { productId } = useParams();
+  const { products, currency, addToCart, user, token } = useContext(ShopContext); // user or token needed
+  const [productData, setProductData] = useState(null);
+  const [image, setImage] = useState('');
 
   useEffect(() => {
-    const selectedProduct = products.find((item) => item._id === productId)
+    const selectedProduct = products.find((item) => item._id === productId);
     if (selectedProduct) {
-      setProductData(selectedProduct)
-      setImage(selectedProduct.image?.[0] || '')
+      setProductData(selectedProduct);
+      setImage(selectedProduct.image?.[0] || '');
     }
-  }, [productId, products])
+  }, [productId, products]);
 
   if (!productData) {
     return (
       <div className="p-10 text-center text-gray-400 bg-black min-h-screen">
         Loading product...
       </div>
-    )
+    );
   }
 
   const handleAddToCart = () => {
-    if (!user) {
-      // If not logged in, redirect to login with return path
-      navigate('/login', { state: { from: `/product/${productId}` } })
-    } else {
-      addToCart(productData._id)
-      toast.success('Product added to cart successfully!')
+    if (!user && !token) {
+      toast.error('Please login first');
+      navigate('/login');
+      return;
     }
-  }
+
+    addToCart(productData._id);
+    toast.success('Product added to cart successfully!');
+  };
 
   return (
     <div className="border-t border-gray-800 pt-10 bg-black text-white min-h-screen">
       <div className="flex gap-12 flex-col sm:flex-row">
+
         {/* Images Section */}
         <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
           <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll sm:w-[18.7%] w-full gap-2">
@@ -96,6 +98,7 @@ const Product = () => {
 
           <p className="mt-4 text-gray-300 md:w-4/5">{productData.description}</p>
 
+          {/* ADD TO CART */}
           <button
             onClick={handleAddToCart}
             className="bg-green-500 hover:bg-green-600 text-black font-semibold px-8 py-3 rounded-lg transition text-sm mt-8 shadow"
@@ -135,7 +138,7 @@ const Product = () => {
         subCategory={productData.subCategory}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Product
+export default Product;
