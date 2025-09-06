@@ -243,7 +243,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-black">
       {/* Left side - Image Carousel (Visible on both desktop and mobile) */}
       <div className="flex-1 relative overflow-hidden">
         {fitnessImages.map((image, index) => (
@@ -258,10 +258,10 @@ const Login = () => {
               alt={`Fitness ${index + 1}`}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
               <div className="text-center text-white p-8">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">Transform Your Body</h2>
-                <p className="text-lg md:text-xl">
+                <p className="text-lg md:text-xl text-gray-300">
                   {index === 0 && "Join thousands of members achieving their fitness goals"}
                   {index === 1 && "Expert trainers and world-class facilities"}
                   {index === 2 && "Start your fitness journey today"}
@@ -275,7 +275,7 @@ const Login = () => {
             <button
               key={index}
               className={`w-3 h-3 rounded-full ${
-                index === currentImageIndex ? 'bg-white' : 'bg-gray-400'
+                index === currentImageIndex ? 'bg-green-400' : 'bg-gray-600'
               }`}
               onClick={() => setCurrentImageIndex(index)}
               aria-label={`Go to slide ${index + 1}`}
@@ -286,21 +286,21 @@ const Login = () => {
 
       {/* Right side - Form */}
       <div className="w-full md:w-1/2 lg:w-2/5 xl:w-1/3 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+        <div className="max-w-md w-full space-y-8 bg-gray-900 p-8 rounded-xl border border-gray-800">
           {/* Logo */}
           <div className="text-center">
-            <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto h-16 w-16 bg-green-600 rounded-full flex items-center justify-center mb-4">
               <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             
-            <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
+            <h2 className="mt-2 text-3xl font-extrabold text-white">
               {!forgotPasswordMode 
                 ? (currentState === 'Login' ? 'Welcome Back!' : 'Create Account') 
                 : 'Reset Password'}
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-400">
               {!forgotPasswordMode 
                 ? (currentState === 'Login' 
                     ? 'Sign in to continue your fitness journey' 
@@ -315,13 +315,13 @@ const Login = () => {
                 {currentState === 'Sign Up' && (
                   <div className="rounded-md shadow-sm -space-y-px">
                     <div className="mb-4">
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
                       <input
                         id="name"
                         name="name"
                         type="text"
                         required
-                        className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="relative block w-full px-4 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         placeholder="Enter your full name"
                         value={formData.name}
                         onChange={handleChange}
@@ -332,28 +332,28 @@ const Login = () => {
 
                 <div className="rounded-md shadow-sm -space-y-px">
                   <div className="mb-4">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">Email address</label>
                     <input
                       id="email"
                       name="email"
                       type="email"
                       autoComplete="email"
                       required
-                      className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="relative block w-full px-4 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={handleChange}
                     />
                   </div>
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-1">Password</label>
                     <input
                       id="password"
                       name="password"
                       type="password"
                       autoComplete={currentState === 'Login' ? 'current-password' : 'new-password'}
                       required
-                      className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="relative block w-full px-4 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="Enter your password"
                       value={formData.password}
                       onChange={handleChange}
@@ -368,7 +368,7 @@ const Login = () => {
                       <button
                         type="button"
                         onClick={() => setForgotPasswordMode(true)}
-                        className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                        className="font-medium text-green-400 hover:text-green-300 transition-colors"
                       >
                         Forgot your password?
                       </button>
@@ -378,7 +378,7 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setCurrentState(prev => prev === 'Login' ? 'Sign Up' : 'Login')}
-                      className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                      className="font-medium text-green-400 hover:text-green-300 transition-colors"
                     >
                       {currentState === 'Login' ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
                     </button>
@@ -389,7 +389,7 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <span className="flex items-center">
@@ -410,10 +410,10 @@ const Login = () => {
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+                    <div className="w-full border-t border-gray-700" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    {/* <span className="px-2 bg-white text-gray-500">Or continue with</span> */}
+                    {/* <span className="px-2 bg-gray-900 text-gray-400">Or continue with</span> */}
                   </div>
                 </div>
 
@@ -431,14 +431,14 @@ const Login = () => {
                 {!resetToken ? (
                   <div className="rounded-md shadow-sm -space-y-px">
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">Email address</label>
                       <input
                         id="email"
                         name="email"
                         type="email"
                         autoComplete="email"
                         required
-                        className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="relative block w-full px-4 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         placeholder="Enter your email"
                         value={formData.email}
                         onChange={handleChange}
@@ -449,13 +449,13 @@ const Login = () => {
                   <>
                     <div className="rounded-md shadow-sm -space-y-px">
                       <div className="mb-4">
-                        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-400 mb-1">New Password</label>
                         <input
                           id="newPassword"
                           name="newPassword"
                           type="password"
                           required
-                          className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="relative block w-full px-4 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-800 rounded-t-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                           placeholder="Enter new password"
                           value={formData.newPassword}
                           onChange={handleChange}
@@ -463,13 +463,13 @@ const Login = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-400 mb-1">Confirm Password</label>
                         <input
                           id="confirmPassword"
                           name="confirmPassword"
                           type="password"
                           required
-                          className="relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="relative block w-full px-4 py-3 border border-gray-700 placeholder-gray-500 text-white bg-gray-800 rounded-b-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                           placeholder="Confirm your password"
                           value={formData.confirmPassword}
                           onChange={handleChange}
@@ -488,7 +488,7 @@ const Login = () => {
                         setForgotPasswordMode(false);
                         setResetToken('');
                       }}
-                      className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                      className="font-medium text-green-400 hover:text-green-300 transition-colors"
                     >
                       Back to {currentState === 'Login' ? 'Login' : 'Sign Up'}
                     </button>
@@ -499,7 +499,7 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <span className="flex items-center">
@@ -520,13 +520,13 @@ const Login = () => {
 
           {/* OTP Modal */}
           {showOtpModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white p-6 rounded-xl max-w-sm w-full shadow-xl">
-                <h3 className="text-xl font-semibold mb-4 text-gray-900">
+            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-900 p-6 rounded-xl max-w-sm w-full border border-gray-800">
+                <h3 className="text-xl font-semibold mb-4 text-white">
                   {forgotPasswordMode ? 'Password Reset Verification' : 'Email Verification'}
                 </h3>
-                <p className="mb-4 text-gray-600">
-                  We've sent a 6-digit OTP to <strong className="text-blue-600">{formData.email}</strong>. 
+                <p className="mb-4 text-gray-400">
+                  We've sent a 6-digit OTP to <strong className="text-green-400">{formData.email}</strong>. 
                   Please enter it below to {forgotPasswordMode ? 'reset your password' : 'verify your email'}.
                 </p>
                 
@@ -537,7 +537,7 @@ const Login = () => {
                     value={formData.otp}
                     onChange={handleChange}
                     placeholder="Enter OTP"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 text-center text-lg font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-700 rounded-lg mb-4 text-center text-lg font-mono tracking-widest bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                     maxLength="6"
                     pattern="\d{6}"
                     required
@@ -548,7 +548,7 @@ const Login = () => {
                       type="button"
                       onClick={handleResendOtp}
                       disabled={otpCountdown > 0 || isLoading}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {otpCountdown > 0 ? `Resend in ${otpCountdown}s` : 'Resend OTP'}
                     </button>
@@ -556,7 +556,7 @@ const Login = () => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? 'Verifying...' : 'Verify'}
                     </button>

@@ -1,23 +1,45 @@
-import React from 'react'
-import Title from '../components/Title'
-import NewsletterBox from '../components/NewsletterBox'
+import React from 'react';
+import { motion } from 'framer-motion';
+import Title from '../components/Title';
+import NewsletterBox from '../components/NewsletterBox';
 
 const Contact = () => {
   return (
-    <div className="text-[#052659] bg-white">
-
-      <div className="text-center text-2xl pt-10 border-t border-gray-200">
-        <Title text1="CONTACT" text2="US" />
-      </div>
-
-      <div className="my-10 flex flex-col justify-center md:flex-row gap-10 mb-28 px-4">
+    <div className="bg-[#0B0C10] text-white overflow-hidden">
+      {/* Hero Banner */}
+      <motion.div
+        className="relative w-full h-[50vh] flex items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
         <img
-          className="w-full md:max-w-[480px] rounded shadow object-cover"
-          src="https://images.pexels.com/photos/1552249/pexels-photo-1552249.jpeg?auto=compress&cs=tinysrgb&w=800"
-          alt="Gym Contact"
+          src="https://images.pexels.com/photos/4164767/pexels-photo-4164767.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          alt="Contact Banner"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
-        <div className="flex flex-col justify-center items-start gap-6 text-gray-700">
-          <p className="font-semibold text-xl text-[#052659]">Our Store</p>
+        <h1 className="relative z-10 text-5xl font-extrabold tracking-wide">
+          CONTACT <span className="text-green-400">US</span>
+        </h1>
+      </motion.div>
+
+      {/* Contact Info Section */}
+      <div className="my-20 flex flex-col md:flex-row justify-center gap-12 px-6 md:px-20">
+        <motion.img
+          src="https://images.pexels.com/photos/6453398/pexels-photo-6453398.jpeg?auto=compress&cs=tinysrgb&w=800"
+          alt="Contact Office"
+          className="w-full md:max-w-[480px] rounded-2xl shadow-2xl border border-gray-700 object-cover"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+        />
+        <motion.div
+          className="flex flex-col justify-center gap-6 md:w-1/2 text-gray-300"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <p className="font-semibold text-2xl text-green-400">Our Store</p>
           <p>
             FRD Nutrition <br />
             Dev Colony Gali, 1, Delhi Rd, <br />
@@ -27,18 +49,39 @@ const Contact = () => {
             +91 92781 60000 <br />
             frdgym.com
           </p>
-          <p className="font-semibold text-xl text-[#052659]">Careers at FRD Nutrition</p>
+          <p className="font-semibold text-2xl text-green-400">
+            Careers at FRD Nutrition
+          </p>
           <p>Join our team and grow with the leaders in sports nutrition.</p>
-          <button className="border border-[#052659] px-8 py-3 text-sm hover:bg-[#052659] hover:text-white transition">
+          <motion.button
+            className="border border-green-400 px-8 py-3 text-sm font-semibold hover:bg-green-400 hover:text-black transition rounded-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             Explore Jobs
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
+      </div>
+
+      {/* Map / Extra Image Section */}
+      <div className="px-6 md:px-20 mb-20">
+        <motion.div
+          className="w-full overflow-hidden rounded-2xl shadow-2xl border border-gray-700"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+        >
+          <img
+            src="https://images.pexels.com/photos/1552249/pexels-photo-1552249.jpeg?auto=compress&cs=tinysrgb&w=1600"
+            alt="Gym Contact Map"
+            className="w-full h-72 md:h-[400px] object-cover"
+          />
+        </motion.div>
       </div>
 
       <NewsletterBox />
-
     </div>
-  )
-}
+  );
+};
 
-export default Contact
+export default Contact;

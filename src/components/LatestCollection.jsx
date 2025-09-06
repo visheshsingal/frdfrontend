@@ -1,77 +1,140 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import Title from './Title';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const LatestCollection = () => {
-  const { products, currency } = useContext(ShopContext);
+  const { products = [], currency } = useContext(ShopContext);
   const [popularProducts, setPopularProducts] = useState([]);
+  const navigate = useNavigate();
 
+  // Moving banner images (hardcoded)
+  const movingImages = [
+    'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/1552252/pexels-photo-1552252.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/3763874/pexels-photo-3763874.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/7030166/pexels-photo-7030166.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+  ];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Banner image rotation
   useEffect(() => {
-    const popular = products.filter(item => {
-      const sub = item.subCategory;
-      if (!sub) return false;
-      if (Array.isArray(sub)) {
-        return sub.map(s => s.toLowerCase()).includes("popular");
-      }
-      return sub.toLowerCase() === "popular";
-    });
-    setPopularProducts(popular.slice(0, 12));
-  }, [products]);
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % movingImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [movingImages.length]);
 
-  const formatPrice = (price) => {
-    return price.toFixed(2);
+  // ---------- Helpers ----------
+  const toArray = (v) => (Array.isArray(v) ? v : v != null ? [v] : []);
+  const norm = (s) => String(s).toLowerCase();
+  const hasPopular = (val) => toArray(val).some((v) => norm(v).includes('popular'));
+  const isPopularProduct = (item) =>
+    hasPopular(item?.subCategory) ||
+    hasPopular(item?.category) ||
+    hasPopular(item?.tags) ||
+    hasPopular(item?.labels) ||
+    hasPopular(item?.badges) ||
+    item?.isPopular === true ||
+    item?.popular === true;
+
+  const safeNum = (n, fallback = 0) => {
+    const x = typeof n === 'string' ? parseFloat(n) : n;
+    return Number.isFinite(x) ? x : fallback;
   };
 
+  // ---------- Compute popular products ----------
+  const computedPopular = useMemo(() => {
+    if (!Array.isArray(products) || products.length === 0) return [];
+
+    let list = products.filter(isPopularProduct);
+
+    if (list.length === 0) {
+      const scored = [...products].map((p) => ({
+        item: p,
+        score:
+          safeNum(p.sold) * 3 +
+          safeNum(p.sales) * 3 +
+          safeNum(p.rating) * 2 +
+          safeNum(p.reviews) * 1,
+      }));
+      scored.sort((a, b) => b.score - a.score);
+      list = scored.map((s) => s.item);
+    }
+
+    return list.slice(0, 10);
+  }, [products]);
+
+  useEffect(() => {
+    setPopularProducts(computedPopular);
+  }, [computedPopular]);
+
+  // Navigate to product page
+  const handleNavigation = (path) => {
+    navigate(path);
+    window.scrollTo(0, 0);
+  };
+
+  const formatPrice = (price) => safeNum(price).toFixed(2);
+
+  // ---------- Render ----------
   return (
-    <div className="my-16 bg-white px-4 py-10 rounded-lg shadow-md border border-blue-50">
-      <div className="text-center mb-10">
-        <Title text1={'POPULAR'} text2={'PRODUCTS'} />
-        <p className="w-3/4 md:w-1/2 mx-auto text-sm text-[#052659]/80 mt-3">
-          Handpicked health and fitness supplements chosen by our community — high-quality, trusted, and performance-proven.
+    <div className="my-20 bg-[#0B0C10] text-white px-4 py-14 rounded-xl shadow-xl border border-gray-800">
+      
+      {/* Title */}
+      <div className="text-center mb-14">
+        <Title text1="POPULAR" text2="SUPPLEMENTS" />
+        <p className="w-3/4 md:w-1/2 mx-auto text-sm text-gray-300 mt-4">
+          Trusted by athletes and fitness enthusiasts — explore our most popular, performance-boosting supplements.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
+      {/* Product Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-16">
         {popularProducts.length > 0 ? (
           popularProducts.map((item, index) => {
-            const hasDiscount = item.discount > 0;
-            const discountedPrice = hasDiscount
-              ? item.price - (item.price * item.discount) / 100
-              : item.price;
+            const price = safeNum(item?.price);
+            const discount = safeNum(item?.discount);
+            const hasDiscount = discount > 0;
+            const discountedPrice = hasDiscount ? price - (price * discount) / 100 : price;
 
             return (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                key={item?._id || index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="hover:shadow-lg transition-shadow duration-300 bg-white rounded-lg p-3 border"
+                transition={{ delay: index * 0.06, duration: 0.4 }}
+                className="hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-[#1F2833] rounded-xl p-4 border border-gray-700 cursor-pointer"
+                onClick={() => handleNavigation(`/product/${item._id}`)}
               >
                 <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-36 object-contain mb-2"
+                  src={item?.image?.[0] || 'https://images.pexels.com/photos/7674485/pexels-photo-7674485.jpeg?auto=compress&cs=tinysrgb&w=1200'}
+                  alt={item?.name || 'Supplement'}
+                  className="w-full h-40 object-contain mb-3 rounded"
+                  loading="lazy"
                 />
-                <h4 className="text-sm font-semibold text-[#052659] line-clamp-2">{item.name}</h4>
+                <h4 className="text-sm font-semibold text-white line-clamp-2">
+                  {item?.name || 'Popular Supplement'}
+                </h4>
 
-                <div className="mt-1">
+                <div className="mt-2">
                   {hasDiscount ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-[#052659] font-bold text-sm">
+                      <span className="text-green-400 font-bold text-sm">
                         {currency} {formatPrice(discountedPrice)}
                       </span>
-                      <span className="line-through text-gray-400 text-xs">
-                        {currency} {formatPrice(item.price)}
+                      <span className="line-through text-gray-500 text-xs">
+                        {currency} {formatPrice(price)}
                       </span>
-                      <span className="text-green-600 text-xs font-semibold">
-                        -{item.discount}%
+                      <span className="text-red-400 text-xs font-semibold">
+                        -{discount}%
                       </span>
                     </div>
                   ) : (
-                    <span className="text-[#052659] font-bold text-sm">
-                      {currency} {formatPrice(item.price)}
+                    <span className="text-green-400 font-bold text-sm">
+                      {currency} {formatPrice(price)}
                     </span>
                   )}
                 </div>
@@ -79,39 +142,55 @@ const LatestCollection = () => {
             );
           })
         ) : (
-          <p className="col-span-full text-center text-[#052659]/70">
-            No popular products found. Check back soon!
+          <p className="col-span-full text-center text-gray-400">
+            Loading popular supplements...
           </p>
         )}
       </div>
 
+      {/* Moving Banner */}
       <motion.div
-        className="w-full max-w-5xl mx-auto overflow-hidden rounded-xl shadow-lg border border-blue-100"
-        initial={{ opacity: 0, y: 30 }}
+        className="w-full max-w-6xl mx-auto overflow-hidden rounded-2xl shadow-2xl border border-gray-700"
+        initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
         <div className="relative">
-          <img
-            src="https://plus.unsplash.com/premium_photo-1664298829781-4d7e2d419fde?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="Health Supplements"
-            className="w-full object-cover h-60 sm:h-72 lg:h-80"
+          <motion.img
+            key={currentImageIndex}
+            src={movingImages[currentImageIndex]}
+            alt="Popular Supplements"
+            className="w-full object-cover h-72 sm:h-80 lg:h-96"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            exit={{ opacity: 0 }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#052659]/80 to-transparent"></div>
-        </div>
-        <div className="p-6 bg-gradient-to-br from-blue-50 to-white text-center">
-          <h3 className="text-xl sm:text-2xl font-bold text-[#052659]">
-            Your Wellness, <span className="text-blue-600">Our Priority</span>
-          </h3>
-          <p className="text-sm sm:text-base text-[#052659]/90 mt-2">
-            From boosting immunity to enhancing strength, our scientifically formulated health supplements are trusted by thousands.
-          </p>
-          <button className="mt-4 px-6 py-2 bg-[#052659] hover:bg-blue-800 text-white font-medium rounded-lg transition-colors duration-300">
-            Shop Popular Products
-          </button>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute inset-0 flex items-center justify-center p-8 text-center">
+            <div>
+              <motion.h3 
+                className="text-2xl sm:text-3xl font-bold text-white mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                Fuel Your <span className="text-green-400">Performance</span>
+              </motion.h3>
+              <motion.p 
+                className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                Premium formulas, tested for quality — crafted to power your goals, every single day.
+              </motion.p>
+            </div>
+          </div>
         </div>
       </motion.div>
+
     </div>
   );
 };

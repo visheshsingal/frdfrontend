@@ -18,9 +18,7 @@ const Collection = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cat = params.get('category');
-    if (cat) {
-      setMainCategory(cat);
-    }
+    if (cat) setMainCategory(cat);
   }, [location.search]);
 
   const categories = [
@@ -67,23 +65,15 @@ const Collection = () => {
     switch (sortType) {
       case 'low-high':
         filtered.sort((a, b) => {
-          const aPrice = a.discount > 0
-            ? a.price - (a.price * a.discount) / 100
-            : a.price;
-          const bPrice = b.discount > 0
-            ? b.price - (b.price * b.discount) / 100
-            : b.price;
+          const aPrice = a.discount > 0 ? a.price - (a.price * a.discount) / 100 : a.price;
+          const bPrice = b.discount > 0 ? b.price - (b.price * b.discount) / 100 : b.price;
           return aPrice - bPrice;
         });
         break;
       case 'high-low':
         filtered.sort((a, b) => {
-          const aPrice = a.discount > 0
-            ? a.price - (a.price * a.discount) / 100
-            : a.price;
-          const bPrice = b.discount > 0
-            ? b.price - (b.price * b.discount) / 100
-            : b.price;
+          const aPrice = a.discount > 0 ? a.price - (a.price * a.discount) / 100 : a.price;
+          const bPrice = b.discount > 0 ? b.price - (b.price * b.discount) / 100 : b.price;
           return bPrice - aPrice;
         });
         break;
@@ -99,13 +89,13 @@ const Collection = () => {
   }, [search, showSearch, products, sortType, mainCategory, subCategory, price]);
 
   return (
-    <div className="px-4 md:px-12 py-8">
+    <div className="px-4 md:px-12 py-8 bg-black min-h-screen text-white">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <Title text1="OUR" text2="PRODUCTS" />
         <select
           value={sortType}
           onChange={(e) => setSortType(e.target.value)}
-          className="border-2 border-gray-300 text-sm px-3 py-1 rounded"
+          className="border-2 border-gray-700 bg-black text-green-500 text-sm px-3 py-1 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500"
         >
           <option value="relevant">Sort by: Relevance</option>
           <option value="low-high">Sort by: Low to High</option>
@@ -117,7 +107,7 @@ const Collection = () => {
         <select
           value={mainCategory}
           onChange={(e) => setMainCategory(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded"
+          className="px-3 py-2 border border-gray-700 bg-black text-green-500 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500"
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
@@ -128,7 +118,7 @@ const Collection = () => {
         <select
           value={subCategory}
           onChange={(e) => setSubCategory(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded"
+          className="px-3 py-2 border border-gray-700 bg-black text-green-500 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500"
         >
           <option value="">All Tags</option>
           {subCategories.map((sub) => (
@@ -137,8 +127,8 @@ const Collection = () => {
         </select>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="price" className="text-gray-700 font-medium whitespace-nowrap">
-            Max Price: ₹{price}
+          <label htmlFor="price" className="text-gray-300 font-medium whitespace-nowrap">
+            Max Price: <span className="text-green-500 font-semibold">₹{price}</span>
           </label>
           <input
             id="price"
@@ -148,7 +138,7 @@ const Collection = () => {
             step="100"
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
-            className="w-[200px]"
+            className="w-[200px] accent-green-500"
           />
         </div>
       </div>
@@ -173,7 +163,7 @@ const Collection = () => {
             );
           })
         ) : (
-          <p className="text-gray-500 col-span-full">No products found.</p>
+          <p className="text-gray-500 col-span-full text-center">No products found.</p>
         )}
       </div>
     </div>

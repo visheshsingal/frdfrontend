@@ -4,6 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Reset */
 * {
   font-family: 'Outfit', sans-serif;
   box-sizing: border-box;
@@ -11,25 +12,41 @@
   padding: 0;
 }
 
-body {
+/* Dark theme body */
+body, html {
   margin: 0;
   padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: black; /* Dark blue/black background */
+  color: white; /* Default text color */
 }
 
-a.active hr {
-  display: block;
+/* Links */
+a {
+  color: white;
+  text-decoration: none;
 }
 
+a.active {
+  background-color: #14274E; /* Slightly lighter dark shade for active link */
+  color: white;
+}
+
+/* Scrollbar hidden */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Font classes */
 .prata-regular {
   font-family: "Prata", serif;
   font-weight: 400;
   font-style: normal;
 }
 
-::-webkit-scrollbar {
-  display: none;
-}
-
+/* Responsive tweaks */
 @media (max-width: 640px) {
   a.active {
     background-color: black;
@@ -37,13 +54,7 @@ a.active hr {
   }
 }
 
-html, body {
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  overflow-x: hidden;
-}
-
+/* Animations */
 @keyframes slide {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -51,4 +62,9 @@ html, body {
 
 .animate-slide {
   animation: slide 20s linear infinite;
+}
+
+/* Optional: force all headings and text to be white */
+h1, h2, h3, h4, h5, h6, p, span, li {
+  color: white;
 }
