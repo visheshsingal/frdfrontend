@@ -8,15 +8,18 @@ import RelatedProducts from '../components/RelatedProducts';
 const Product = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
-  const { products, currency, addToCart, user, token } = useContext(ShopContext); // user or token needed
+  const { products, currency, addToCart, user, token } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
-  const [image, setImage] = useState('');
+  const [selectedImage, setSelectedImage] = useState('');
 
   useEffect(() => {
     const selectedProduct = products.find((item) => item._id === productId);
     if (selectedProduct) {
       setProductData(selectedProduct);
-      setImage(selectedProduct.image?.[0] || '');
+      // Set the first image as default
+      if (selectedProduct.image?.[0]) {
+        setSelectedImage(selectedProduct.image[0]);
+      }
     }
   }, [productId, products]);
 
@@ -48,20 +51,21 @@ const Product = () => {
           <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll sm:w-[18.7%] w-full gap-2">
             {productData.image?.map((item, index) => (
               <img
-                onClick={() => setImage(item)}
+                onClick={() => setSelectedImage(item)}
                 src={item}
                 key={index}
                 className={`w-[24%] sm:w-full cursor-pointer hover:scale-105 transition rounded-lg ${
-                  image === item ? 'border-2 border-green-500' : 'border border-gray-700'
+                  selectedImage === item ? 'border-2 border-green-500' : 'border border-gray-700'
                 }`}
                 alt={`product-thumbnail-${index}`}
               />
             ))}
           </div>
+          
           <div className="w-full sm:w-[80%]">
             <img
               className="w-full h-auto rounded-lg shadow-lg border border-gray-800"
-              src={image}
+              src={selectedImage}
               alt="main product"
             />
           </div>
@@ -115,8 +119,32 @@ const Product = () => {
         </div>
       </div>
 
+      {/* Videos Section - Below Images */}
+      {productData.videos && productData.videos.length > 0 && (
+        <div className="mt-12 px-2">
+          <h2 className="text-2xl font-bold text-green-500 mb-6">Product Videos</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {productData.videos.map((video, index) => (
+              <div key={index} className="bg-gray-900 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-green-400 mb-3">
+                  Video {index + 1}
+                </h3>
+                <video 
+                  controls 
+                  className="w-full h-auto rounded-lg"
+                  poster={productData.image?.[0]} // Use first image as thumbnail
+                >
+                  <source src={video} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Description */}
-      <div className="mt-20 px-2">
+      <div className="mt-12 px-2">
         <div className="flex">
           <b className="border border-green-500 px-5 py-3 text-sm bg-green-500 text-black rounded-t">
             Description
