@@ -13,15 +13,11 @@ const Login = () => {
     email: '',
     password: '',
     newPassword: '',
-    confirmPassword: '',
-    otp: ''
+    confirmPassword: ''
   });
 
-  const [showOtpModal, setShowOtpModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [otpCountdown, setOtpCountdown] = useState(0);
   const [resetToken, setResetToken] = useState('');
-  const [requiresOTP, setRequiresOTP] = useState(false);
 
   // Fitness-related images from Pexels
   const fitnessImages = [
@@ -37,14 +33,6 @@ const Login = () => {
       navigate('/');
     }
   }, [token, navigate]);
-
-  useEffect(() => {
-    let timer;
-    if (otpCountdown > 0) {
-      timer = setTimeout(() => setOtpCountdown(otpCountdown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [otpCountdown]);
 
   // Image carousel effect
   useEffect(() => {
@@ -74,19 +62,15 @@ const Login = () => {
 
       const response = await axios.post(`${backendUrl}${endpoint}`, payload);
 
-      if (response.data.requiresOTP) {
-        setShowOtpModal(true);
-        setOtpCountdown(60);
-        setRequiresOTP(true);
-        toast.info('OTP sent to your email');
-      } else if (response.data.success) {
+      if (response.data.success) {
         handleAuthSuccess(response.data);
+        toast.success(currentState === 'Sign Up' ? 'Account created successfully!' : 'Login successful!');
       } else {
         toast.error(response.data.message || 'Something went wrong');
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || error.message || 'Login failed');
+      toast.error(error.response?.data?.message || error.message || 'Authentication failed');
     } finally {
       setIsLoading(false);
     }
@@ -102,16 +86,14 @@ const Login = () => {
       });
 
       if (response.data.success) {
-        setShowOtpModal(true);
-        setOtpCountdown(60);
-        setRequiresOTP(true);
-        toast.info('Password reset OTP sent to your email');
+        setResetToken(response.data.resetToken);
+        toast.success('Password reset initiated. You can now set your new password.');
       } else {
-        toast.error(response.data.message || 'Failed to send reset OTP');
+        toast.error(response.data.message || 'Failed to initiate password reset');
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || 'Failed to send reset OTP');
+      toast.error(error.response?.data?.message || 'Failed to initiate password reset');
     } finally {
       setIsLoading(false);
     }
@@ -136,11 +118,11 @@ const Login = () => {
         toast.success('Password reset successfully! You can now login with your new password.');
         setForgotPasswordMode(false);
         setCurrentState('Login');
+        setResetToken('');
         setFormData(prev => ({
           ...prev,
           newPassword: '',
-          confirmPassword: '',
-          otp: ''
+          confirmPassword: ''
         }));
       } else {
         toast.error(response.data.message || 'Failed to reset password');
@@ -150,83 +132,6 @@ const Login = () => {
       toast.error(error.response?.data?.message || error.message || 'Failed to reset password');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      let response;
-      
-      if (forgotPasswordMode) {
-        response = await axios.post(`${backendUrl}/api/user/verify-reset-otp`, {
-          email: formData.email,
-          otp: formData.otp
-        });
-        
-        if (response.data.success) {
-          setResetToken(response.data.resetToken);
-          setShowOtpModal(false);
-          setRequiresOTP(false);
-          toast.success('OTP verified successfully!');
-        }
-      } else {
-        // For login with OTP verification
-        response = await axios.post(`${backendUrl}/api/user/verify-otp`, { 
-          email: formData.email,
-          otp: formData.otp 
-        });
-
-        if (response.data.success) {
-          if (currentState === 'Sign Up') {
-            // After successful signup with OTP
-            toast.success('Account created successfully! Please login with your credentials.');
-            setCurrentState('Login');
-            setShowOtpModal(false);
-            setRequiresOTP(false);
-            setFormData({
-              name: '',
-              email: '',
-              password: '',
-              newPassword: '',
-              confirmPassword: '',
-              otp: ''
-            });
-          } else {
-            // For login - THIS IS THE FIXED PART
-            handleAuthSuccess(response.data);
-            setShowOtpModal(false);
-            setRequiresOTP(false);
-            toast.success('Login successful!');
-          }
-        }
-      }
-    // } catch (error) {
-    //   console.error(error);
-    //   toast.error(error.response?.data?.message || 'OTP verification failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    try {
-      const endpoint = forgotPasswordMode ? '/api/user/forgot-password' : '/api/user/send-otp';
-      const response = await axios.post(`${backendUrl}${endpoint}`, { 
-        email: formData.email 
-      });
-
-      if (response.data.success) {
-        setOtpCountdown(60);
-        toast.success('New OTP sent to your email');
-      } else {
-        toast.error(response.data.message || 'Failed to resend OTP');
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || 'Failed to resend OTP');
     }
   };
 
@@ -305,7 +210,7 @@ const Login = () => {
                 ? (currentState === 'Login' 
                     ? 'Sign in to continue your fitness journey' 
                     : 'Join us and start transforming your body today')
-                : 'Recover your account access'}
+                : resetToken ? 'Set your new password' : 'Recover your account access'}
             </p>
           </div>
 
@@ -510,60 +415,12 @@ const Login = () => {
                         Processing...
                       </span>
                     ) : (
-                      <span>{resetToken ? 'Reset Password' : 'Send Reset OTP'}</span>
+                      <span>{resetToken ? 'Reset Password' : 'Reset Password'}</span>
                     )}
                   </button>
                 </div>
               </form>
             </>
-          )}
-
-          {/* OTP Modal */}
-          {showOtpModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-              <div className="bg-gray-900 p-6 rounded-xl max-w-sm w-full border border-gray-800">
-                <h3 className="text-xl font-semibold mb-4 text-white">
-                  {forgotPasswordMode ? 'Password Reset Verification' : 'Email Verification'}
-                </h3>
-                <p className="mb-4 text-gray-400">
-                  We've sent a 6-digit OTP to <strong className="text-green-400">{formData.email}</strong>. 
-                  Please enter it below to {forgotPasswordMode ? 'reset your password' : 'verify your email'}.
-                </p>
-                
-                <form onSubmit={handleOtpSubmit}>
-                  <input
-                    type="text"
-                    name="otp"
-                    value={formData.otp}
-                    onChange={handleChange}
-                    placeholder="Enter OTP"
-                    className="w-full px-4 py-3 border border-gray-700 rounded-lg mb-4 text-center text-lg font-mono tracking-widest bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    maxLength="6"
-                    pattern="\d{6}"
-                    required
-                  />
-                  
-                  <div className="flex justify-between items-center">
-                    <button
-                      type="button"
-                      onClick={handleResendOtp}
-                      disabled={otpCountdown > 0 || isLoading}
-                      className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {otpCountdown > 0 ? `Resend in ${otpCountdown}s` : 'Resend OTP'}
-                    </button>
-                    
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? 'Verifying...' : 'Verify'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
           )}
         </div>
       </div>
