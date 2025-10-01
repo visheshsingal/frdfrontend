@@ -37,7 +37,19 @@ const PlaceOrder = () => {
   const onChangeHandler = (e) =>
     setFormData((data) => ({ ...data, [e.target.name]: e.target.value }))
 
-  // ✅ YEH NAYA FUNCTION ADD KARO - Cart items ko order format mein convert karta hai
+  // Load Razorpay script dynamically
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true)
+      const script = document.createElement('script')
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+  }
+
+  // Convert cart items to order format
   const getOrderItems = () => {
     const orderItems = [];
     
@@ -63,7 +75,7 @@ const PlaceOrder = () => {
     return orderItems;
   }
 
-  // ✅ YEH NAYA FUNCTION ADD KARO - COD Order ke liye
+  // Place COD Order
   const placeCODOrder = async () => {
     try {
       const orderItems = getOrderItems();
@@ -71,7 +83,7 @@ const PlaceOrder = () => {
       
       const orderData = {
         userId: user._id,
-        items: orderItems, // ✅ Items bhej rahe hain
+        items: orderItems,
         amount: totalAmount,
         address: formData
       };
@@ -95,17 +107,17 @@ const PlaceOrder = () => {
     }
   }
 
-  // ✅ Razorpay function ko update karo
+  // Razorpay Payment
   const payWithRazorpay = async () => {
     try {
       const orderItems = getOrderItems();
       const totalAmount = (getCartAmount() + delivery_fee) * 100;
       
-      // Pehle order create karo backend mein
+      // Create temporary order first
       const orderData = {
         userId: user._id,
-        items: orderItems, // ✅ Items bhej rahe hain
-        amount: totalAmount / 100, // Convert back to rupees
+        items: orderItems,
+        amount: totalAmount / 100,
         address: formData
       };
 
@@ -120,18 +132,6 @@ const PlaceOrder = () => {
         return;
       }
 
-      // Razorpay script load karo
-      const loadRazorpayScript = () => {
-        return new Promise((resolve) => {
-          if (window.Razorpay) return resolve(true)
-          const script = document.createElement('script')
-          script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-          script.onload = () => resolve(true)
-          script.onerror = () => resolve(false)
-          document.body.appendChild(script)
-        })
-      }
-
       const loaded = await loadRazorpayScript()
       if (!loaded) {
         toast.error('Razorpay SDK failed to load.')
@@ -139,20 +139,20 @@ const PlaceOrder = () => {
       }
 
       const options = {
-        key: 'rzp_test_REIvz0GDMFHatN',
+        key: 'rzp_test_RO8kaE9GNU9MPE',
         amount: totalAmount,
         currency: 'INR',
         name: 'Fitness Store',
         description: 'Order Payment',
-        order_id: response.data.order.id, // ✅ Backend se order ID use karo
-        handler: async function (response) {
-          console.log('Razorpay payment success:', response);
+        order_id: response.data.order.id,
+        handler: async function (paymentResponse) {
+          console.log('Razorpay payment success:', paymentResponse);
           
-          // Payment verify karo
+          // Verify payment with backend
           try {
             const verifyResponse = await axios.post(`${backendUrl}/api/order/verifyRazorpay`, {
               userId: user._id,
-              razorpay_order_id: response.razorpay_order_id
+              razorpay_order_id: paymentResponse.razorpay_order_id
             }, {
               headers: { token }
             });
@@ -163,6 +163,7 @@ const PlaceOrder = () => {
               navigate('/orders');
             } else {
               toast.error('Payment verification failed');
+              // Don't clear cart on failed payment
             }
           } catch (error) {
             console.error('Payment verification error:', error);
@@ -176,7 +177,16 @@ const PlaceOrder = () => {
         },
         theme: { color: '#16a34a' },
         modal: { 
-          ondismiss: () => toast.info('Payment cancelled') 
+          ondismiss: () => {
+            toast.info('Payment cancelled');
+            // Cancel the temporary order
+            axios.post(`${backendUrl}/api/order/cancel`, {
+              orderId: response.data.orderId,
+              userEmail: formData.email
+            }, {
+              headers: { token }
+            }).catch(err => console.log('Cancel order error:', err));
+          }
         }
       }
 
@@ -189,7 +199,7 @@ const PlaceOrder = () => {
     }
   }
 
-  // ✅ Main onSubmitHandler ko update karo
+  // Main form submission handler
   const onSubmitHandler = async (e) => {
     e.preventDefault()
     setIsProcessing(true)
@@ -226,7 +236,7 @@ const PlaceOrder = () => {
 
   return (
     <form onSubmit={onSubmitHandler} className="flex flex-col sm:flex-row justify-between gap-8 pt-8 sm:pt-14 min-h-[80vh] border-t border-green-800 bg-black text-white px-4">
-      {/* Left Side */}
+      {/* Left Side - Delivery Information */}
       <div className="flex flex-col gap-4 w-full sm:max-w-[480px]">
         <div className="text-3xl my-3 text-green-500">
           <Title text1="DELIVERY" text2="INFORMATION" />
@@ -248,7 +258,7 @@ const PlaceOrder = () => {
         <input required onChange={onChangeHandler} name="phone" value={formData.phone} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="tel" placeholder="Phone" />
       </div>
 
-      {/* Right Side */}
+      {/* Right Side - Cart Total & Payment */}
       <div className="sm:max-w-md w-full">
         <div className="my-8 min-w-80">
           <CartTotal />
