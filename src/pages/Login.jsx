@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 const Login = () => {
   const [currentState, setCurrentState] = useState('Login');
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
-  const { token, setToken, navigate, backendUrl, setUser  } = useContext(ShopContext);
+  const { token, setToken, navigate, backendUrl, setUser } = useContext(ShopContext);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -50,6 +50,41 @@ const Login = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAuthSuccess = (data) => {
+    console.log('🔐 Login Success Data:', data);
+    
+    // Set token
+    setToken(data.token);
+    localStorage.setItem('token', data.token);
+    
+    if (data.user) {
+      // Make sure we have ALL user data including _id
+      const userData = {
+        _id: data.user._id || data.user.id, // Try both _id and id
+        name: data.user.name,
+        email: data.user.email,
+        isVerified: data.user.isVerified,
+        // Include any other user fields
+        ...data.user
+      };
+      
+      console.log('👤 Complete user data being stored:', userData);
+      
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      console.warn('⚠️ No user data in login response');
+      // If no user data, at least store basic info from form
+      const basicUserData = {
+        email: formData.email,
+        name: formData.name || 'User'
+      };
+      localStorage.setItem('user', JSON.stringify(basicUserData));
+    }
+    
+    navigate('/');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -60,7 +95,13 @@ const Login = () => {
         ? { name: formData.name, email: formData.email, password: formData.password }
         : { email: formData.email, password: formData.password };
 
+      console.log('📤 Sending request to:', endpoint);
+      console.log('📦 Payload:', payload);
+
       const response = await axios.post(`${backendUrl}${endpoint}`, payload);
+
+      console.log('✅ API Response:', response.data);
+      console.log('👤 User object in response:', response.data.user);
 
       if (response.data.success) {
         handleAuthSuccess(response.data);
@@ -69,7 +110,8 @@ const Login = () => {
         toast.error(response.data.message || 'Something went wrong');
       }
     } catch (error) {
-      console.error(error);
+      console.error('❌ Error:', error);
+      console.log('Error response:', error.response?.data);
       toast.error(error.response?.data?.message || error.message || 'Authentication failed');
     } finally {
       setIsLoading(false);
@@ -135,21 +177,9 @@ const Login = () => {
     }
   };
 
-  const handleAuthSuccess = (data) => {
-    setToken(data.token);
-    localStorage.setItem('token', data.token);
-    
-    if (data.user) {
-      setUser(data.user);
-      localStorage.setItem('user', JSON.stringify(data.user));
-    }
-    
-    navigate('/');
-  };
-
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-black">
-      {/* Left side - Image Carousel (Visible on both desktop and mobile) */}
+      {/* Left side - Image Carousel */}
       <div className="flex-1 relative overflow-hidden">
         {fitnessImages.map((image, index) => (
           <div
@@ -310,22 +340,6 @@ const Login = () => {
                   </button>
                 </div>
               </form>
-
-              {/* Social login options */}
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-700" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    {/* <span className="px-2 bg-gray-900 text-gray-400">Or continue with</span> */}
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  {/* Social login buttons can be added here */}
-                </div>
-              </div>
             </>
           ) : (
             <>

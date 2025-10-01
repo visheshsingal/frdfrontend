@@ -4,6 +4,7 @@ import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
 import { ShopContext } from '../context/ShopContext'
 import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState('cod')
@@ -15,7 +16,10 @@ const PlaceOrder = () => {
     setCartItems,
     getCartAmount,
     delivery_fee,
-    products
+    products,
+    backendUrl,
+    token,
+    user
   } = useContext(ShopContext)
 
   const [formData, setFormData] = useState({
@@ -33,53 +37,159 @@ const PlaceOrder = () => {
   const onChangeHandler = (e) =>
     setFormData((data) => ({ ...data, [e.target.name]: e.target.value }))
 
-  // Load Razorpay script dynamically
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if (window.Razorpay) return resolve(true)
-      const script = document.createElement('script')
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-      script.onload = () => resolve(true)
-      script.onerror = () => resolve(false)
-      document.body.appendChild(script)
-    })
+  // ✅ YEH NAYA FUNCTION ADD KARO - Cart items ko order format mein convert karta hai
+  const getOrderItems = () => {
+    const orderItems = [];
+    
+    for (const itemId in cartItems) {
+      const product = products.find(p => p._id === itemId);
+      if (product) {
+        for (const size in cartItems[itemId]) {
+          const quantity = cartItems[itemId][size];
+          orderItems.push({
+            id: itemId,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            size: size,
+            image: product.image,
+            discount: product.discount || 0
+          });
+        }
+      }
+    }
+    
+    console.log('🛒 Order Items Prepared:', orderItems);
+    return orderItems;
   }
 
+  // ✅ YEH NAYA FUNCTION ADD KARO - COD Order ke liye
+  const placeCODOrder = async () => {
+    try {
+      const orderItems = getOrderItems();
+      const totalAmount = getCartAmount() + delivery_fee;
+      
+      const orderData = {
+        userId: user._id,
+        items: orderItems, // ✅ Items bhej rahe hain
+        amount: totalAmount,
+        address: formData
+      };
+
+      console.log('📦 Sending COD Order:', orderData);
+
+      const response = await axios.post(`${backendUrl}/api/order/place`, orderData, {
+        headers: { token }
+      });
+
+      if (response.data.success) {
+        toast.success('Order placed successfully! (COD)');
+        setCartItems({});
+        navigate('/orders');
+      } else {
+        toast.error(response.data.message || 'Failed to place order');
+      }
+    } catch (error) {
+      console.error('COD Order Error:', error);
+      toast.error(error.response?.data?.message || 'Failed to place order');
+    }
+  }
+
+  // ✅ Razorpay function ko update karo
   const payWithRazorpay = async () => {
-    const loaded = await loadRazorpayScript()
-    if (!loaded) {
-      toast.error('Razorpay SDK failed to load.')
-      return
+    try {
+      const orderItems = getOrderItems();
+      const totalAmount = (getCartAmount() + delivery_fee) * 100;
+      
+      // Pehle order create karo backend mein
+      const orderData = {
+        userId: user._id,
+        items: orderItems, // ✅ Items bhej rahe hain
+        amount: totalAmount / 100, // Convert back to rupees
+        address: formData
+      };
+
+      console.log('📦 Creating Razorpay Order:', orderData);
+
+      const response = await axios.post(`${backendUrl}/api/order/razorpay`, orderData, {
+        headers: { token }
+      });
+
+      if (!response.data.success) {
+        toast.error(response.data.message || 'Failed to create order');
+        return;
+      }
+
+      // Razorpay script load karo
+      const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+          if (window.Razorpay) return resolve(true)
+          const script = document.createElement('script')
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+          script.onload = () => resolve(true)
+          script.onerror = () => resolve(false)
+          document.body.appendChild(script)
+        })
+      }
+
+      const loaded = await loadRazorpayScript()
+      if (!loaded) {
+        toast.error('Razorpay SDK failed to load.')
+        return
+      }
+
+      const options = {
+        key: 'rzp_test_REIvz0GDMFHatN',
+        amount: totalAmount,
+        currency: 'INR',
+        name: 'Fitness Store',
+        description: 'Order Payment',
+        order_id: response.data.order.id, // ✅ Backend se order ID use karo
+        handler: async function (response) {
+          console.log('Razorpay payment success:', response);
+          
+          // Payment verify karo
+          try {
+            const verifyResponse = await axios.post(`${backendUrl}/api/order/verifyRazorpay`, {
+              userId: user._id,
+              razorpay_order_id: response.razorpay_order_id
+            }, {
+              headers: { token }
+            });
+
+            if (verifyResponse.data.success) {
+              toast.success('Payment successful! Order placed.');
+              setCartItems({});
+              navigate('/orders');
+            } else {
+              toast.error('Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            toast.error('Payment verification failed');
+          }
+        },
+        prefill: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          contact: formData.phone
+        },
+        theme: { color: '#16a34a' },
+        modal: { 
+          ondismiss: () => toast.info('Payment cancelled') 
+        }
+      }
+
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+      
+    } catch (error) {
+      console.error('Razorpay Error:', error);
+      toast.error(error.response?.data?.message || 'Payment failed');
     }
-
-    // Calculate total amount in paise
-    const totalAmount = (getCartAmount() + delivery_fee) * 100
-
-    const options = {
-      key: 'rzp_test_REIvz0GDMFHatN',
-      amount: totalAmount,
-      currency: 'INR',
-      name: 'Fitness Store',
-      description: 'Order Payment',
-      handler: function (response) {
-        console.log('Razorpay payment success:', response)
-        toast.success('Payment successful! Order placed.')
-        setCartItems({})
-        navigate('/orders')
-      },
-      prefill: {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        contact: formData.phone
-      },
-      theme: { color: '#16a34a' },
-      modal: { ondismiss: () => toast.info('Payment cancelled') }
-    }
-
-    const rzp = new window.Razorpay(options)
-    rzp.open()
   }
 
+  // ✅ Main onSubmitHandler ko update karo
   const onSubmitHandler = async (e) => {
     e.preventDefault()
     setIsProcessing(true)
@@ -100,15 +210,18 @@ const PlaceOrder = () => {
       return
     }
 
-    if (method === 'cod') {
-      toast.success('Order placed successfully! (COD)')
-      setCartItems({})
-      navigate('/orders')
-    } else if (method === 'razorpay') {
-      await payWithRazorpay()
+    try {
+      if (method === 'cod') {
+        await placeCODOrder();
+      } else if (method === 'razorpay') {
+        await payWithRazorpay();
+      }
+    } catch (error) {
+      console.error('Order placement error:', error);
+      toast.error('Failed to place order');
+    } finally {
+      setIsProcessing(false);
     }
-
-    setIsProcessing(false)
   }
 
   return (
