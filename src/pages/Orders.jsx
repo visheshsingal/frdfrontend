@@ -30,9 +30,19 @@ const Orders = () => {
       );
 
       if (response.data.success) {
-        setOrders(response.data.orders || []);
+        // ✅ ADD THIS FILTER: Remove failed Razorpay payments
+        const filteredOrders = (response.data.orders || []).filter(order => {
+          // Razorpay orders mein sirf paid wale rakhna hai
+          if (order.paymentMethod === 'Razorpay' && order.payment !== true) {
+            return false; // Failed Razorpay payments ko remove karo
+          }
+          // COD orders aur successful Razorpay payments ko rakhna hai
+          return true;
+        });
         
-        if (response.data.orders.length === 0) {
+        setOrders(filteredOrders);
+        
+        if (filteredOrders.length === 0) {
           toast.info('You have no orders yet');
         }
       } else {

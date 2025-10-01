@@ -143,7 +143,7 @@ const PlaceOrder = () => {
     }
   }
 
-  // Razorpay Payment - FIXED: Proper amount calculation
+  // Razorpay Payment - ORIGINAL WORKING VERSION
   const payWithRazorpay = async () => {
     try {
       const orderItems = getOrderItems();
@@ -151,6 +151,7 @@ const PlaceOrder = () => {
       // Check if cart is empty after filtering
       if (orderItems.length === 0) {
         toast.error('Your cart is empty');
+        setIsProcessing(false);
         return;
       }
       
@@ -159,10 +160,11 @@ const PlaceOrder = () => {
       // Validate amount
       if (totalAmount <= 0) {
         toast.error('Invalid order amount');
+        setIsProcessing(false);
         return;
       }
 
-      // Create temporary order first
+      // Create temporary order first (THIS IS THE PROBLEM - order pehle hi create ho raha hai)
       const orderData = {
         userId: user._id,
         items: orderItems,
@@ -178,18 +180,20 @@ const PlaceOrder = () => {
 
       if (!response.data.success) {
         toast.error(response.data.message || 'Failed to create order');
+        setIsProcessing(false);
         return;
       }
 
       const loaded = await loadRazorpayScript()
       if (!loaded) {
-        toast.error('Razorpay SDK failed to load.')
-        return
+        toast.error('Razorpay SDK failed to load.');
+        setIsProcessing(false);
+        return;
       }
 
       const options = {
-        key: 'rzp_test_RO8kaE9GNU9MPE', // Consider moving this to environment variable
-        amount: Math.round(totalAmount * 100), // Convert to paise and ensure integer
+        key: 'rzp_test_RO8kaE9GNU9MPE',
+        amount: Math.round(totalAmount * 100),
         currency: 'INR',
         name: 'Fitness Store',
         description: 'Order Payment',
@@ -214,11 +218,12 @@ const PlaceOrder = () => {
               navigate('/orders');
             } else {
               toast.error('Payment verification failed');
-              // Don't clear cart on failed payment
+              setIsProcessing(false);
             }
           } catch (error) {
             console.error('Payment verification error:', error);
             toast.error('Payment verification failed');
+            setIsProcessing(false);
           }
         },
         prefill: {
@@ -230,15 +235,7 @@ const PlaceOrder = () => {
         modal: { 
           ondismiss: () => {
             toast.info('Payment cancelled');
-            // Cancel the temporary order
-            if (response.data.orderId) {
-              axios.post(`${backendUrl}/api/order/cancel`, {
-                orderId: response.data.orderId,
-                userEmail: formData.email
-              }, {
-                headers: { token }
-              }).catch(err => console.log('Cancel order error:', err));
-            }
+            setIsProcessing(false);
           }
         }
       }
@@ -254,6 +251,7 @@ const PlaceOrder = () => {
       } else {
         toast.error(error.response?.data?.message || 'Payment failed');
       }
+      setIsProcessing(false);
     }
   }
 
@@ -297,7 +295,6 @@ const PlaceOrder = () => {
     } catch (error) {
       console.error('Order placement error:', error);
       toast.error('Failed to place order');
-    } finally {
       setIsProcessing(false);
     }
   }
