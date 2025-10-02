@@ -277,6 +277,37 @@ const Orders = () => {
                   </p>
                 )}
               </div>
+
+              {/* Order Tracking Section */}
+              <div className="bg-gray-800 rounded-lg p-4">
+                <h4 className="text-green-400 font-semibold text-base sm:text-lg mb-3">📦 Order Tracking</h4>
+                {order.trackingUrl ? (
+                  <>
+                    <p className="text-gray-400 text-xs sm:text-sm mb-3">
+                      Your order has been shipped! Click below to track its progress.
+                    </p>
+                    <a
+                      href={order.trackingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    >
+                      🚚 Track Order
+                    </a>
+                  </>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-pulse flex space-x-1">
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    </div>
+                    <p className="text-yellow-400 text-xs sm:text-sm font-medium">
+                      We will update the tracking soon
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           ))
         )}
