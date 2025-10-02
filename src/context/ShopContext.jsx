@@ -14,7 +14,30 @@ const ShopContextProvider = (props) => {
     const [showSearch, setShowSearch] = useState(false);
     const [cartItems, setCartItems] = useState({});
     const [products, setProducts] = useState([]);
-    const [token, setToken] = useState('')
+    const [token, setToken] = useState(() => {
+        // Initialize token from localStorage if available
+        const savedToken = localStorage.getItem('token');
+        
+        if (savedToken) {
+            try {
+                // Check if token is expired
+                const payload = JSON.parse(atob(savedToken.split('.')[1]));
+                const currentTime = Date.now() / 1000;
+                
+                if (payload.exp && payload.exp < currentTime) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    return '';
+                }
+                return savedToken;
+            } catch (error) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                return '';
+            }
+        }
+        return '';
+    })
     const [user, setUser] = useState(() => {
         // Initialize user from localStorage if available
         const savedUser = localStorage.getItem('user');
@@ -130,9 +153,12 @@ const ShopContextProvider = (props) => {
 
     // Update localStorage when token changes
     useEffect(() => {
+        console.log('🔄 Token changed:', token ? 'SET' : 'CLEARED');
         if (token) {
+            console.log('💾 Saving token to localStorage');
             localStorage.setItem('token', token);
         } else {
+            console.log('🗑️ Removing token from localStorage');
             localStorage.removeItem('token');
         }
     }, [token]);
@@ -151,21 +177,41 @@ const ShopContextProvider = (props) => {
     }, [])
 
     useEffect(() => {
-        if (!token && localStorage.getItem('token')) {
+        // Only load from localStorage if token is not already set
+        if (!token) {
             const savedToken = localStorage.getItem('token');
-            setToken(savedToken);
-            getUserCart(savedToken);
-            
-            // Also load user from localStorage
-            const savedUser = localStorage.getItem('user');
-            if (savedUser) {
-                setUser(JSON.parse(savedUser));
+            if (savedToken) {
+                try {
+                    // Check if token is expired
+                    const payload = JSON.parse(atob(savedToken.split('.')[1]));
+                    const currentTime = Date.now() / 1000;
+                    if (payload.exp && payload.exp < currentTime) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        return;
+                    }
+                    setToken(savedToken);
+                    
+                    // Also load user from localStorage
+                    const savedUser = localStorage.getItem('user');
+                    if (savedUser) {
+                        try {
+                            setUser(JSON.parse(savedUser));
+                        } catch (e) {
+                            localStorage.removeItem('user');
+                        }
+                    }
+                } catch (error) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
             }
         }
+        
         if (token) {
             getUserCart(token);
         }
-    }, [token])
+    }, [])
 
     const value = {
         products, currency, delivery_fee,
