@@ -9,6 +9,11 @@ const Orders = () => {
   const { backendUrl, currency } = useContext(ShopContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [currentOrderId, setCurrentOrderId] = useState('');
+  const [noteText, setNoteText] = useState('');
+  const [showViewNotesModal, setShowViewNotesModal] = useState(false);
+  const [viewNotesText, setViewNotesText] = useState('');
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
@@ -53,6 +58,43 @@ const Orders = () => {
       toast.error('Failed to load orders');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddNote = async (orderId, currentNotes) => {
+    setCurrentOrderId(orderId);
+    setNoteText(currentNotes || '');
+    setShowNotesModal(true);
+  };
+
+  const handleViewNotes = (notes) => {
+    setViewNotesText(notes);
+    setShowViewNotesModal(true);
+  };
+
+  const saveUserNotes = async () => {
+    try {
+      await axios.post(
+        `${backendUrl}/api/order/user-notes`,
+        { 
+          orderId: currentOrderId, 
+          userNotes: noteText
+        },
+        { headers: { token } }
+      );
+      
+      toast.success('Special request updated successfully!');
+      setShowNotesModal(false);
+      setNoteText('');
+      setCurrentOrderId('');
+      await loadOrderData();
+    } catch (error) {
+      console.error('Error updating notes:', error);
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Failed to update special request');
+      }
     }
   };
 
@@ -186,7 +228,7 @@ const Orders = () => {
 
               {/* Shipping Address */}
               {order.address && (
-                <div className="bg-gray-800 rounded-lg p-4">
+                <div className="bg-gray-800 rounded-lg p-4 mb-4">
                   <h4 className="text-green-400 font-semibold mb-3 text-base sm:text-lg">Shipping Address</h4>
                   <div className="text-gray-300 text-xs sm:text-sm">
                     <p className="font-medium">{order.address.firstName} {order.address.lastName}</p>
@@ -200,10 +242,106 @@ const Orders = () => {
                   </div>
                 </div>
               )}
+
+              {/* Special Request Section */}
+              <div className="bg-gray-800 rounded-lg p-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-green-400 font-semibold text-base sm:text-lg">Special Request</h4>
+                  <button
+                    onClick={() => handleAddNote(order._id, order.userNotes || '')}
+                    className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                  >
+                    {order.userNotes ? '✏️ Edit' : '➕ Add'}
+                  </button>
+                </div>
+                
+                {order.userNotes ? (
+                  <div className="text-gray-300 text-xs sm:text-sm">
+                    {order.userNotes.length > 150 ? (
+                      <>
+                        <p className="break-words">{order.userNotes.substring(0, 150)}...</p>
+                        <button 
+                          onClick={() => handleViewNotes(order.userNotes)}
+                          className="text-green-400 hover:text-green-300 underline mt-2 text-xs"
+                        >
+                          View Full Request
+                        </button>
+                      </>
+                    ) : (
+                      <p className="break-words">{order.userNotes}</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-xs sm:text-sm italic">
+                    No special requests added. Click "Add" to include delivery instructions or special requests.
+                  </p>
+                )}
+              </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Add/Edit Notes Modal */}
+      {showNotesModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md border border-green-600">
+            <h3 className="text-lg font-semibold mb-4 text-green-400">Add Special Request</h3>
+            <p className="text-gray-400 text-sm mb-4">
+              Add delivery instructions, special requests, or any notes for this order.
+            </p>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Enter your special request or delivery instructions..."
+              className="w-full h-32 p-3 bg-gray-800 border border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-white placeholder-gray-400"
+              maxLength={500}
+            />
+            <p className="text-gray-500 text-xs mt-1">{noteText.length}/500 characters</p>
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={saveUserNotes}
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Save Request
+              </button>
+              <button
+                onClick={() => {
+                  setShowNotesModal(false);
+                  setNoteText('');
+                  setCurrentOrderId('');
+                }}
+                className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Notes Modal */}
+      {showViewNotesModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md border border-green-600">
+            <h3 className="text-lg font-semibold mb-4 text-green-400">Special Request</h3>
+            <div className="max-h-64 overflow-y-auto border border-gray-600 rounded p-3 bg-gray-800">
+              <p className="text-gray-300 text-sm break-words whitespace-pre-wrap">{viewNotesText}</p>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => {
+                  setShowViewNotesModal(false);
+                  setViewNotesText('');
+                }}
+                className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
