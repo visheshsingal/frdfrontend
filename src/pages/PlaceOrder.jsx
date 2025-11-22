@@ -69,15 +69,86 @@ const PlaceOrder = () => {
           const quantity = cartItems[itemId][size];
           // Only add items with quantity > 0
           if (quantity > 0) {
-            orderItems.push({
+            // Determine variant by index or uid
+            let unitPrice = Number(product.price || 0);
+            let discount = Number(product.discount || 0);
+            let variantName = '';
+            let variantUid = '';
+            let groupLabel = '';
+
+            // Declare matchedVariant in outer scope so we can reference it below when deciding item image
+            let matchedVariant = null;
+            let compositeSelections = null;
+            if (size !== '' && product.variants && product.variants.length > 0) {
+              // composite group selection key (e.g., 'g:0-1|1-0')
+              if (typeof size === 'string' && size.startsWith('g:')) {
+                compositeSelections = size.slice(2).split('|').map(p => {
+                  const [gi, vi] = p.split('-');
+                  return { groupIndex: Number(gi), variantIndex: Number(vi) };
+                });
+
+                // Try to find a flattened variant that matches all selections
+                for (let vi = 0; vi < product.variants.length; vi++) {
+                  const v = product.variants[vi];
+                  if (!v.meta) continue;
+                  let matchesAll = true;
+                  for (const s of compositeSelections) {
+                    if (!(v.meta.groupIndex === s.groupIndex && v.meta.variantIndex === s.variantIndex)) { matchesAll = false; break; }
+                  }
+                  if (matchesAll) { matchedVariant = v; break; }
+                }
+              } else {
+                const isNumeric = /^\d+$/.test(size);
+                if (isNumeric) matchedVariant = product.variants[Number(size)];
+                else matchedVariant = product.variants.find(v => v.uid === size);
+              }
+
+              if (matchedVariant) {
+                unitPrice = matchedVariant.price !== undefined && matchedVariant.price !== null ? Number(matchedVariant.price) : unitPrice;
+                discount = matchedVariant.discount !== undefined && matchedVariant.discount !== null && matchedVariant.discount !== '' ? Number(matchedVariant.discount) : discount;
+                variantName = matchedVariant.name || '';
+                variantUid = matchedVariant.uid || '';
+                groupLabel = matchedVariant.meta?.groupLabel || '';
+              }
+            }
+
+            const finalUnit = discount > 0 ? Math.round(unitPrice - (unitPrice * discount / 100)) : unitPrice;
+
+            // Determine image for this variant: prefer variant.images[0], otherwise product.image[0]
+            let itemImage = null;
+            if (matchedVariant && Array.isArray(matchedVariant.images) && matchedVariant.images.length > 0) {
+              itemImage = matchedVariant.images[0];
+            } else if (product.image) {
+              itemImage = Array.isArray(product.image) ? product.image[0] : product.image;
+            }
+
+            const orderItem = {
               id: itemId,
               name: product.name,
-              price: product.price,
+              unitPrice, // original unit price (before discount)
+              discount, // percent
+              finalPrice: finalUnit, // price after discount
               quantity: quantity,
-              size: size,
-              image: product.image,
-              discount: product.discount || 0
-            });
+              image: itemImage,
+              variantName,
+              variantUid,
+              groupLabel
+            };
+
+            if (compositeSelections) {
+              orderItem.selectedOptions = compositeSelections.map(s => {
+                const g = product.variantGroups?.[s.groupIndex];
+                const opt = g?.variants?.[s.variantIndex];
+                return {
+                  groupIndex: s.groupIndex,
+                  variantIndex: s.variantIndex,
+                  groupLabel: g?.label || '',
+                  optionName: opt?.name || (typeof opt === 'string' ? opt : '')
+                };
+              });
+            }
+
+            orderItems.push(orderItem);
           }
         }
       }
@@ -91,11 +162,12 @@ const PlaceOrder = () => {
   const calculateTotalAmount = () => {
     const orderItems = getOrderItems();
     if (orderItems.length === 0) return 0;
-    
+
     const subtotal = orderItems.reduce((total, item) => {
-      return total + (item.price * item.quantity);
+      const unit = item.finalPrice !== undefined ? Number(item.finalPrice) : Number(item.unitPrice || 0);
+      return total + (unit * item.quantity);
     }, 0);
-    
+
     return subtotal + delivery_fee;
   }
 
@@ -302,12 +374,12 @@ const PlaceOrder = () => {
   // Don't render the form if not authenticated
   if (!token || !user) {
     return (
-      <div className="flex items-center justify-center pt-8 sm:pt-14 min-h-[80vh] border-t border-green-800 bg-black text-white px-4">
+      <div className="flex items-center justify-center pt-8 sm:pt-14 min-h-[80vh] border-t border-blue-600 bg-white text-slate-800 px-4">
         <div className="text-center">
-          <p className="text-xl text-green-500 mb-4">Please login to place an order</p>
+          <p className="text-xl text-blue-600 mb-4">Please login to place an order</p>
           <button 
             onClick={() => navigate('/login')}
-            className="bg-green-500 text-black font-semibold px-8 py-3 rounded hover:bg-green-600 transition-colors duration-300"
+            className="bg-blue-600 text-white font-semibold px-8 py-3 rounded hover:bg-blue-700 transition-colors duration-300"
           >
             Go to Login
           </button>
@@ -317,27 +389,27 @@ const PlaceOrder = () => {
   }
 
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col sm:flex-row justify-between gap-8 pt-8 sm:pt-14 min-h-[80vh] border-t border-green-800 bg-black text-white px-4">
+    <form onSubmit={onSubmitHandler} className="flex flex-col sm:flex-row justify-between gap-8 pt-8 sm:pt-14 min-h-[80vh] border-t border-blue-600 bg-white text-slate-800 px-4">
       {/* Left Side - Delivery Information */}
       <div className="flex flex-col gap-4 w-full sm:max-w-[480px]">
-        <div className="text-3xl my-3 text-green-500">
+        <div className="text-3xl my-3 text-blue-600">
           <Title text1="DELIVERY" text2="INFORMATION" />
         </div>
         <div className="flex gap-3">
-          <input required onChange={onChangeHandler} name="firstName" value={formData.firstName} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="text" placeholder="First name" />
-          <input required onChange={onChangeHandler} name="lastName" value={formData.lastName} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="text" placeholder="Last name" />
+          <input required onChange={onChangeHandler} name="firstName" value={formData.firstName} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="text" placeholder="First name" />
+          <input required onChange={onChangeHandler} name="lastName" value={formData.lastName} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="text" placeholder="Last name" />
         </div>
-        <input required onChange={onChangeHandler} name="email" value={formData.email} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="email" placeholder="Email" />
-        <input required onChange={onChangeHandler} name="street" value={formData.street} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="text" placeholder="Street" />
+        <input required onChange={onChangeHandler} name="email" value={formData.email} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="email" placeholder="Email" />
+        <input required onChange={onChangeHandler} name="street" value={formData.street} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="text" placeholder="Street" />
         <div className="flex gap-3">
-          <input required onChange={onChangeHandler} name="city" value={formData.city} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="text" placeholder="City" />
-          <input onChange={onChangeHandler} name="state" value={formData.state} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="text" placeholder="State" />
+          <input required onChange={onChangeHandler} name="city" value={formData.city} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="text" placeholder="City" />
+          <input onChange={onChangeHandler} name="state" value={formData.state} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="text" placeholder="State" />
         </div>
         <div className="flex gap-3">
-          <input required onChange={onChangeHandler} name="zipcode" value={formData.zipcode} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="number" placeholder="Zipcode" />
-          <input required onChange={onChangeHandler} name="country" value={formData.country} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="text" placeholder="Country" />
+          <input required onChange={onChangeHandler} name="zipcode" value={formData.zipcode} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="number" placeholder="Zipcode" />
+          <input required onChange={onChangeHandler} name="country" value={formData.country} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="text" placeholder="Country" />
         </div>
-        <input required onChange={onChangeHandler} name="phone" value={formData.phone} className="bg-neutral-900 border border-green-800 rounded py-2 px-4 w-full focus:outline-green-500" type="tel" placeholder="Phone" />
+        <input required onChange={onChangeHandler} name="phone" value={formData.phone} className="bg-gray-50 border border-blue-600 rounded py-2 px-4 w-full focus:outline-blue-500" type="tel" placeholder="Phone" />
       </div>
 
       {/* Right Side - Cart Total & Payment */}
@@ -350,15 +422,15 @@ const PlaceOrder = () => {
           <Title text1="PAYMENT" text2="METHOD" />
           <div className="flex gap-3 flex-col lg:flex-row mt-4">
             {['razorpay','cod'].map(opt => (
-              <div key={opt} onClick={() => setMethod(opt)} className={`flex items-center gap-3 border p-2 px-3 cursor-pointer rounded transition hover:bg-neutral-900 ${method===opt?'border-green-500':'border-green-800'}`}>
-                <span className={`min-w-4 h-4 border rounded-full ${method===opt?'bg-green-500':'border-green-500'}`}></span>
-                {opt!=='cod'?<img className="h-5 mx-4" src={assets.razorpay_logo} alt="Razorpay"/>:<p className="text-gray-400 text-sm mx-4">Cash on Delivery</p>}
+              <div key={opt} onClick={() => setMethod(opt)} className={`flex items-center gap-3 border p-2 px-3 cursor-pointer rounded transition hover:bg-gray-50 ${method===opt?'border-blue-600':'border-blue-600'}`}>
+                <span className={`min-w-4 h-4 border rounded-full ${method===opt?'bg-blue-600':'border-blue-600'}`}></span>
+                {opt!=='cod'?<img className="h-5 mx-4" src={assets.razorpay_logo} alt="Razorpay"/>:<p className="text-slate-600 text-sm mx-4">Cash on Delivery</p>}
               </div>
             ))}
           </div>
 
           <div className="w-full text-end mt-8">
-            <button type="submit" disabled={isProcessing} className="bg-green-500 text-black font-semibold px-12 py-3 text-sm rounded hover:bg-green-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="submit" disabled={isProcessing} className="bg-blue-600 text-white font-semibold px-12 py-3 text-sm rounded hover:bg-blue-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
               {isProcessing?'Processing...':'PLACE ORDER'}
             </button>
           </div>

@@ -89,13 +89,13 @@ const Collection = () => {
   }, [search, showSearch, products, sortType, mainCategory, subCategory, price]);
 
   return (
-    <div className="px-4 md:px-12 py-8 bg-black min-h-screen text-white">
+    <div className="px-4 md:px-12 py-8 bg-white min-h-screen text-slate-800">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <Title text1="OUR" text2="PRODUCTS" />
         <select
           value={sortType}
           onChange={(e) => setSortType(e.target.value)}
-          className="border-2 border-gray-700 bg-black text-green-500 text-sm px-3 py-1 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500"
+          className="border-2 border-gray-300 bg-white text-blue-600 text-sm px-3 py-1 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         >
           <option value="relevant">Sort by: Relevance</option>
           <option value="low-high">Sort by: Low to High</option>
@@ -107,7 +107,7 @@ const Collection = () => {
         <select
           value={mainCategory}
           onChange={(e) => setMainCategory(e.target.value)}
-          className="px-3 py-2 border border-gray-700 bg-black text-green-500 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500"
+          className="px-3 py-2 border border-gray-300 bg-white text-blue-600 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
@@ -118,7 +118,7 @@ const Collection = () => {
         <select
           value={subCategory}
           onChange={(e) => setSubCategory(e.target.value)}
-          className="px-3 py-2 border border-gray-700 bg-black text-green-500 rounded focus:border-green-500 focus:ring-1 focus:ring-green-500"
+          className="px-3 py-2 border border-gray-300 bg-white text-blue-600 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         >
           <option value="">All Tags</option>
           {subCategories.map((sub) => (
@@ -128,7 +128,7 @@ const Collection = () => {
 
         <div className="flex items-center gap-2">
           <label htmlFor="price" className="text-gray-300 font-medium whitespace-nowrap">
-            Max Price: <span className="text-green-500 font-semibold">₹{price}</span>
+            Max Price: <span className="text-blue-600 font-semibold">₹{price}</span>
           </label>
           <input
             id="price"

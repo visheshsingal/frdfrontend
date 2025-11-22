@@ -5,10 +5,10 @@ import NewsletterBox from '../components/NewsletterBox';
 
 const About = () => {
   return (
-    <div className="bg-[#0B0C10] text-white overflow-hidden">
+    <div className="bg-white text-slate-800 overflow-hidden">
       {/* Hero Section */}
       <motion.div
-        className="relative w-full h-[60vh] flex items-center justify-center bg-black"
+        className="relative w-full h-[60vh] flex items-center justify-center bg-white"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -16,10 +16,12 @@ const About = () => {
         <img
           src="https://images.pexels.com/photos/2261482/pexels-photo-2261482.jpeg?auto=compress&cs=tinysrgb&w=1600"
           alt="Supplements Hero"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <h1 className="relative z-10 text-5xl md:text-6xl font-extrabold tracking-widest">
-          ABOUT <span className="text-green-400">FRD</span>
+        {/* dark translucent overlay so image stays vibrant but text is readable */}
+        <div className="absolute inset-0 bg-black bg-opacity-30" />
+        <h1 className="relative z-10 text-5xl md:text-6xl font-extrabold tracking-widest text-white">
+          ABOUT <span className="text-blue-400">FRD</span>
         </h1>
       </motion.div>
 
@@ -59,7 +61,7 @@ const About = () => {
             recovery — trusted by professionals, crafted for everyone aiming
             higher.
           </p>
-          <h2 className="text-2xl font-bold text-green-400">Our Mission</h2>
+          <h2 className="text-2xl font-bold text-blue-600">Our Mission</h2>
           <p>
             We’re committed to innovation, quality, and transparency — bringing
             you the best performance nutrition to reach your goals faster,
@@ -69,7 +71,7 @@ const About = () => {
       </div>
 
       {/* Why Choose Us */}
-      <div className="px-6 md:px-20 py-16 bg-[#1F2833]">
+      <div className="px-6 md:px-20 py-16 bg-gray-50">
         <Title text1="WHY" text2="CHOOSE US" />
         <div className="grid md:grid-cols-3 gap-8 mt-8">
           {[
@@ -91,15 +93,15 @@ const About = () => {
           ].map((card, i) => (
             <motion.div
               key={i}
-              className="bg-[#0B0C10] rounded-2xl p-8 hover:-translate-y-3 hover:shadow-2xl transition-transform duration-300 border border-gray-700"
+              className="bg-white rounded-2xl p-8 hover:-translate-y-3 hover:shadow-2xl transition-transform duration-300 border border-gray-200"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: card.delay, duration: 0.8 }}
             >
-              <h3 className="text-xl font-semibold text-green-400 mb-4">
+              <h3 className="text-xl font-semibold text-blue-600 mb-4">
                 {card.title}
               </h3>
-              <p className="text-gray-400">{card.desc}</p>
+              <p className="text-slate-600">{card.desc}</p>
             </motion.div>
           ))}
         </div>

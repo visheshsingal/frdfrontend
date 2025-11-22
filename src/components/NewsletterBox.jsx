@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 // A simple drifting particle component
 const Particle = ({ delay }) => (
   <motion.div
-    className="absolute w-1 h-1 bg-green-400 rounded-full opacity-50"
+    className="absolute w-1 h-1 bg-blue-600 rounded-full opacity-50"
     initial={{ y: "100%", x: Math.random() * 100 + "%" }}
     animate={{ y: "-20vh", opacity: [0.5, 1, 0.2] }}
     transition={{
@@ -29,10 +29,10 @@ const NewsletterBox = () => {
   };
 
   return (
-    <div className="relative bg-black text-white py-24 px-6 overflow-hidden">
+    <div className="relative bg-white text-slate-800 py-24 px-6 overflow-hidden">
       {/* Animated neon grid background */}
       <div
-        className="absolute inset-0 bg-[linear-gradient(90deg,rgba(34,197,94,0.15)_1px,transparent_1px),linear-gradient(rgba(34,197,94,0.15)_1px,transparent_1px)] bg-[size:50px_50px] animate-[pulse_4s_infinite_alternate]"
+        className="absolute inset-0 bg-[linear-gradient(90deg,rgba(37,99,235,0.15)_1px,transparent_1px),linear-gradient(rgba(37,99,235,0.15)_1px,transparent_1px)] bg-[size:50px_50px] animate-[pulse_4s_infinite_alternate]"
         style={{ maskImage: "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0.6))" }}
       ></div>
 
@@ -49,7 +49,7 @@ const NewsletterBox = () => {
             transition={{ duration: 0.5 }}
             className="space-y-4"
           >
-            <h3 className="text-4xl font-bold text-green-400">
+            <h3 className="text-4xl font-bold text-blue-600">
               You’re In! ✅
             </h3>
             <p className="text-gray-400">
@@ -59,7 +59,7 @@ const NewsletterBox = () => {
         ) : (
           <>
             <motion.h2
-              className="text-5xl md:text-6xl font-extrabold mb-4 tracking-widest text-green-400"
+              className="text-5xl md:text-6xl font-extrabold mb-4 tracking-widest text-blue-600"
               initial={{ opacity: 0, y: -40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 1 }}
@@ -88,11 +88,11 @@ const NewsletterBox = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
-                className="w-full sm:w-80 px-6 py-3 rounded-full text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full sm:w-80 px-6 py-3 rounded-full text-slate-800 placeholder-gray-600 bg-white border-2 border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
               <motion.button
                 type="submit"
-                className="px-8 py-3 font-bold uppercase rounded-full bg-green-500 text-black hover:bg-green-600 transition-colors duration-300"
+                className="px-8 py-3 font-bold uppercase rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

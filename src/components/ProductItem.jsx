@@ -9,7 +9,7 @@ const ProductItem = ({ id, image, name, price, originalPrice, discount }) => {
     <Link
       onClick={() => scrollTo(0, 0)}
       to={`/product/${id}`}
-      className="block bg-black border border-gray-800 rounded-lg hover:border-white hover:shadow-white/20 transition p-3 text-white"
+      className="block bg-white border border-gray-200 rounded-lg hover:border-blue-600 hover:shadow-blue-500/20 transition p-3 text-slate-800"
     >
       <div className="overflow-hidden rounded-md">
         <img
@@ -26,14 +26,14 @@ const ProductItem = ({ id, image, name, price, originalPrice, discount }) => {
       <div className="text-sm font-bold space-x-2">
         {discount > 0 ? (
           <>
-            <span className="text-gray-400 line-through">{currency}{originalPrice}</span>
-            <span className="text-white">{currency}{price}</span>
-            <span className="bg-gray-700 text-white text-xs px-1 py-0.5 rounded">
+            <span className="text-slate-500 line-through">{currency}{originalPrice}</span>
+            <span className="text-slate-800">{currency}{price}</span>
+            <span className="bg-blue-100 text-slate-800 text-xs px-1 py-0.5 rounded">
               -{discount}%
             </span>
           </>
         ) : (
-          <span className="text-white">{currency}{price}</span>
+          <span className="text-slate-800">{currency}{price}</span>
         )}
       </div>
     </Link>

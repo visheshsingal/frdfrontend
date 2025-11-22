@@ -115,7 +115,23 @@ const ShopContextProvider = (props) => {
             for (const item in cartItems[items]) {
                 try {
                     if (cartItems[items][item] > 0) {
-                        totalAmount += itemInfo.price * cartItems[items][item];
+                            // If variant price exists, prefer it
+                            let unitPrice = itemInfo.price;
+                            const variantIdx = item !== '' ? Number(item) : null;
+                            if (variantIdx !== null && itemInfo.variants && itemInfo.variants[variantIdx]) {
+                                const variant = itemInfo.variants[variantIdx];
+                                unitPrice = (variant.price !== undefined && variant.price !== null) ? Number(variant.price) : Number(itemInfo.price);
+                                // apply variant discount if present, else product discount
+                                const vDisc = (variant.discount !== undefined && variant.discount !== null && variant.discount !== '') ? Number(variant.discount) : Number(itemInfo.discount || 0);
+                                if (vDisc > 0) {
+                                    unitPrice = Math.round(unitPrice - (unitPrice * vDisc / 100));
+                                }
+                            } else {
+                                // product-level discount
+                                const pDisc = Number(itemInfo.discount || 0);
+                                if (pDisc > 0) unitPrice = Math.round(unitPrice - (unitPrice * pDisc / 100));
+                            }
+                            totalAmount += unitPrice * cartItems[items][item];
                     }
                 } catch (error) {
                     // Handle error if needed
@@ -129,7 +145,8 @@ const ShopContextProvider = (props) => {
         try {
             const response = await axios.get(backendUrl + '/api/product/list')
             if (response.data.success) {
-                setProducts(response.data.products.reverse())
+                    // backend returns newest first (sorted by date desc); keep that order
+                    setProducts(response.data.products)
             } else {
                 toast.error(response.data.message)
             }
@@ -231,3 +248,4 @@ const ShopContextProvider = (props) => {
 }
 
 export default ShopContextProvider;
+

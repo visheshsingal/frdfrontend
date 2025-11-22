@@ -13,12 +13,12 @@ const SearchBar = () => {
   }, [location])
 
   return showSearch && visible ? (
-    <div className="border-t border-b border-gray-800 bg-black text-center py-4 shadow-md">
-      <div className="inline-flex items-center justify-center border border-green-500/40 px-4 py-2 mx-3 rounded-full w-3/4 sm:w-1/2 bg-black">
+    <div className="border-t border-b border-gray-200 bg-white text-center py-4 shadow-md">
+      <div className="inline-flex items-center justify-center border border-blue-600/40 px-4 py-2 mx-3 rounded-full w-3/4 sm:w-1/2 bg-white">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 outline-none bg-transparent text-sm text-white placeholder-gray-500"
+          className="flex-1 outline-none bg-transparent text-sm text-slate-800 placeholder-gray-500"
           type="text"
           placeholder="Search for supplements…"
         />

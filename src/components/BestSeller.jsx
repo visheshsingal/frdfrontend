@@ -11,8 +11,8 @@ const BestSeller = () => {
 
   // Moving images for the banner
   const movingImages = [
-    'https://sunnyhealthfitness.com/cdn/shop/articles/pre-workout-drink-and-post-workout-drink-for-peak-performance-01_750x.jpg?v=1728586350',
-    'https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/4720778/pexels-photo-4720778.jpeg',
+    'https://images.pexels.com/photos/11439928/pexels-photo-11439928.jpeg',
     'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
   ];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -46,11 +46,11 @@ const BestSeller = () => {
   };
 
   return (
-    <div className='my-20 bg-[#0B0C10] text-white px-4 py-14 rounded-xl shadow-xl border border-gray-800'>
+    <div className='my-20 bg-white text-slate-800 px-4 py-14 rounded-xl shadow-xl border border-gray-200'>
       {/* Section Title */}
       <div className='text-center mb-14'>
         <Title text1={'JUST'} text2={'LAUNCHED'} />
-        <p className='w-3/4 md:w-1/2 mx-auto text-sm text-gray-300 mt-4'>
+        <p className='w-3/4 md:w-1/2 mx-auto text-sm text-slate-600 mt-4'>
           Discover our newest additions, crafted to fuel your strength and health journey with the latest innovation.
         </p>
       </div>
@@ -71,7 +71,7 @@ const BestSeller = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.06, duration: 0.4 }}
-                className="hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-[#1F2833] rounded-xl p-4 border border-gray-700 cursor-pointer"
+                className="hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-gray-50 rounded-xl p-4 border border-gray-200 cursor-pointer"
                 onClick={() => handleNavigation(`/product/${item._id}`)}
               >
                 <img
@@ -80,13 +80,13 @@ const BestSeller = () => {
                   className="w-full h-40 object-contain mb-3 rounded"
                   loading="lazy"
                 />
-                <h4 className="text-sm font-semibold text-white line-clamp-2">
+                <h4 className="text-sm font-semibold text-slate-800 line-clamp-2">
                   {item.name}
                 </h4>
                 <div className="mt-2">
                   {hasDiscount ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-green-400 font-bold text-sm">
+                      <span className="text-blue-600 font-bold text-sm">
                         {currency} {discountedPrice}
                       </span>
                       <span className="line-through text-gray-500 text-xs">
@@ -97,7 +97,7 @@ const BestSeller = () => {
                       </span>
                     </div>
                   ) : (
-                    <span className="text-green-400 font-bold text-sm">
+                    <span className="text-blue-600 font-bold text-sm">
                       {currency} {item.price}
                     </span>
                   )}
@@ -106,7 +106,7 @@ const BestSeller = () => {
             );
           })
         ) : (
-          <p className="col-span-full text-center text-gray-400">
+          <p className="col-span-full text-center text-slate-600">
             No 'Just Launched' products found. Check back soon!
           </p>
         )}
@@ -114,7 +114,7 @@ const BestSeller = () => {
 
       {/* Promotional Banner with moving images */}
       <motion.div
-        className="w-full max-w-6xl mx-auto overflow-hidden rounded-2xl shadow-2xl border border-gray-700"
+        className="w-full max-w-6xl mx-auto overflow-hidden rounded-2xl shadow-2xl border border-gray-200"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -135,15 +135,15 @@ const BestSeller = () => {
           <div className="absolute inset-0 flex items-center justify-center p-8 text-center">
             <div>
               <motion.h3 
-                className="text-2xl sm:text-3xl font-bold text-white mb-4"
+                className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
-                Fresh Arrivals, <span className="text-green-400">Peak Performance</span>
+                Fresh Arrivals, <span className="text-blue-600 font-extrabold drop-shadow">Peak Performance</span>
               </motion.h3>
               <motion.p 
-                className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto"
+                className="text-sm sm:text-base text-white/90 drop-shadow max-w-2xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
@@ -152,7 +152,7 @@ const BestSeller = () => {
               </motion.p>
               {/* <motion.button
                 onClick={() => handleNavigation('/collection?subCategory=Just%20Launched')}
-                className="mt-6 px-8 py-3 bg-green-500 hover:bg-green-400 text-black font-bold rounded-lg transition-colors duration-300"
+                className="mt-6 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors duration-300"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.7, duration: 0.5 }}

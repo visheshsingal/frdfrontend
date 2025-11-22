@@ -12,25 +12,25 @@
   padding: 0;
 }
 
-/* Dark theme body */
+/* Light theme body */
 body, html {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: black; /* Dark blue/black background */
-  color: white; /* Default text color */
+  background-color: white; /* White background */
+  color: #1e293b; /* Default text color - dark slate */
 }
 
 /* Links */
 a {
-  color: white;
+  color: #1e293b;
   text-decoration: none;
 }
 
 a.active {
-  background-color: #14274E; /* Slightly lighter dark shade for active link */
+  background-color: #3b82f6; /* Blue shade for active link */
   color: white;
 }
 
@@ -49,7 +49,7 @@ a.active {
 /* Responsive tweaks */
 @media (max-width: 640px) {
   a.active {
-    background-color: black;
+    background-color: #3b82f6;
     color: white;
   }
 }
@@ -64,7 +64,7 @@ a.active {
   animation: slide 20s linear infinite;
 }
 
-/* Optional: force all headings and text to be white */
+/* Optional: force all headings and text to be dark */
 h1, h2, h3, h4, h5, h6, p, span, li {
-  color: white;
+  color: #1e293b;
 }

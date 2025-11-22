@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
+import logo from '../assets/logo1.png';
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
@@ -41,28 +42,32 @@ const Navbar = () => {
     }
     .animate-marquee {
       display: inline-block;
-      padding-left: 100%;
-      animation: marquee 15s linear infinite;
+      /* reduce leading gap so repeat feels smoother */
+      padding-left: 50%;
+      /* tuned speed: faster than 30s, slower than 15s */
+      animation: marquee 20s linear infinite;
     }
   `;
 
   return (
     <>
       <style>{animations}</style>
-      <nav className="w-full bg-black text-white border-b border-gray-800">
+  <nav className="w-full bg-white text-slate-800 border-b-0 shadow-none relative z-50">
         {/* Moving Top Line */}
-        <div className="bg-gray-900 text-green-400 text-xs py-2 overflow-hidden relative">
+        <div className="bg-blue-50 text-blue-600 text-xs py-2 overflow-hidden relative">
           <div className="whitespace-nowrap animate-marquee">
-            Engineered for Champions — Fuel. Perform. Recover. • Engineered for Champions — Fuel. Perform. Recover. • Engineered for Champions — Fuel. Perform. Recover.
+            Engineered for Champions — Fuel. Perform. Recover. • Contact: +91 92781 60000 
           </div>
         </div>
 
         <div className="flex items-center justify-between h-16 px-4 md:px-8">
           <NavLink to="/" className="flex items-center">
             <img
-              src="https://i.ibb.co/XZWndMD8/Whats-App-Image-2025-08-27-at-22-27-28-1.jpg"
+              src={logo}
               alt="FRD Nutrition Logo"
-              className="h-16 w-auto transition-transform duration-300 hover:scale-105"
+              onError={(e) => { e.target.onerror = null; e.target.src = 'https://instasize.com/api/image/14e907a39cd91b0c70a589e13e3a886cb566c8da26a0b7b24d62f5951801f85c.png'; }}
+              className="h-12 w-auto transition-transform duration-300 hover:scale-105"
+              style={{ backgroundColor: '#fff' }}
             />
           </NavLink>
 
@@ -70,8 +75,8 @@ const Navbar = () => {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `text-sm uppercase font-medium transition-colors duration-300 hover:text-green-400 ${
-                  isActive ? 'text-green-400 font-semibold' : ''
+                `text-sm uppercase font-medium transition-colors duration-300 hover:text-blue-600 ${
+                  isActive ? 'text-blue-600 font-semibold' : ''
                 }`
               }
             >
@@ -80,8 +85,8 @@ const Navbar = () => {
             <NavLink
               to="/collection"
               className={({ isActive }) =>
-                `text-sm uppercase font-medium transition-colors duration-300 hover:text-green-400 ${
-                  isActive ? 'text-green-400 font-semibold' : ''
+                `text-sm uppercase font-medium transition-colors duration-300 hover:text-blue-600 ${
+                  isActive ? 'text-blue-600 font-semibold' : ''
                 }`
               }
             >
@@ -90,8 +95,8 @@ const Navbar = () => {
             {/* <NavLink
               to="/facilities"
               className={({ isActive }) =>
-                `text-sm uppercase font-medium transition-colors duration-300 hover:text-green-400 ${
-                  isActive ? 'text-green-400 font-semibold' : ''
+                `text-sm uppercase font-medium transition-colors duration-300 hover:text-blue-600 ${
+                  isActive ? 'text-blue-600 font-semibold' : ''
                 }`
               }
             >
@@ -100,8 +105,8 @@ const Navbar = () => {
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `text-sm uppercase font-medium transition-colors duration-300 hover:text-green-400 ${
-                  isActive ? 'text-green-400 font-semibold' : ''
+                `text-sm uppercase font-medium transition-colors duration-300 hover:text-blue-600 ${
+                  isActive ? 'text-blue-600 font-semibold' : ''
                 }`
               }
             >
@@ -110,8 +115,8 @@ const Navbar = () => {
             <NavLink
               to="/contact"
               className={({ isActive }) =>
-                `text-sm uppercase font-medium transition-colors duration-300 hover:text-green-400 ${
-                  isActive ? 'text-green-400 font-semibold' : ''
+                `text-sm uppercase font-medium transition-colors duration-300 hover:text-blue-600 ${
+                  isActive ? 'text-blue-600 font-semibold' : ''
                 }`
               }
             >
@@ -125,7 +130,7 @@ const Navbar = () => {
                 setShowSearch(true);
                 navigate('/collection');
               }}
-              className="text-white transition-colors duration-300 hover:text-green-400"
+              className="text-slate-800 transition-colors duration-300 hover:text-blue-600"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +151,7 @@ const Navbar = () => {
             <div className="relative group">
               <button
                 onClick={() => (token ? null : navigate('/login'))}
-                className="text-white transition-colors duration-300 hover:text-green-400"
+                className="text-slate-800 transition-colors duration-300 hover:text-blue-600"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -165,16 +170,16 @@ const Navbar = () => {
               </button>
               {token && (
                 <div className="hidden group-hover:block absolute right-0 pt-2 z-20">
-                  <div className="flex flex-col gap-2 w-48 py-3 px-4 bg-gray-900 text-white rounded shadow-lg border border-gray-800">
+                  <div className="flex flex-col gap-2 w-48 py-3 px-4 bg-white text-slate-800 rounded shadow-lg border border-gray-200">
                     <p
                       onClick={() => navigate('/orders')}
-                      className="cursor-pointer hover:text-green-400 text-sm py-1"
+                      className="cursor-pointer hover:text-blue-600 text-sm py-1"
                     >
                       Orders
                     </p>
                     <p
                       onClick={logout}
-                      className="cursor-pointer hover:text-green-400 text-sm py-1"
+                      className="cursor-pointer hover:text-blue-600 text-sm py-1"
                     >
                       Logout
                     </p>
@@ -185,7 +190,7 @@ const Navbar = () => {
 
             <button
               onClick={() => navigate('/cart')}
-              className="relative text-white transition-colors duration-300 hover:text-green-400"
+              className="relative text-slate-800 transition-colors duration-300 hover:text-green-400"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -201,14 +206,14 @@ const Navbar = () => {
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                 />
               </svg>
-              <span className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 text-white text-xs flex items-center justify-center rounded-full">
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-600 text-white text-xs flex items-center justify-center rounded-full">
                 {getCartCount()}
               </span>
             </button>
 
             <button
               onClick={() => setVisible(true)}
-              className="md:hidden text-white transition-colors duration-300 hover:text-green-400"
+              className="md:hidden text-slate-800 transition-colors duration-300 hover:text-green-400"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -231,12 +236,12 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {visible && (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col slide-down-animation">
-          <div className="flex justify-between items-center p-4 border-b border-gray-800">
-            <h3 className="text-lg font-medium text-white">Menu</h3>
+        <div className="fixed inset-0 z-50 bg-white flex flex-col slide-down-animation">
+          <div className="flex justify-between items-center p-4">
+            <h3 className="text-lg font-medium text-slate-800">Menu</h3>
             <button
               onClick={() => setVisible(false)}
-              className="text-white transition-colors duration-300 hover:text-green-400"
+              className="text-slate-800 transition-colors duration-300 hover:text-blue-600"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -255,39 +260,39 @@ const Navbar = () => {
             </button>
           </div>
 
-          <div className="flex-grow flex flex-col justify-center items-center space-y-6 text-lg font-medium text-white">
+          <div className="flex-grow flex flex-col justify-center items-center space-y-6 text-lg font-medium text-slate-800">
             <NavLink
               onClick={() => setVisible(false)}
               to="/"
-              className={({ isActive }) => (isActive ? 'text-green-400' : '')}
+              className={({ isActive }) => (isActive ? 'text-blue-600' : '')}
             >
               Home
             </NavLink>
             <NavLink
               onClick={() => setVisible(false)}
               to="/collection"
-              className={({ isActive }) => (isActive ? 'text-green-400' : '')}
+              className={({ isActive }) => (isActive ? 'text-blue-600' : '')}
             >
               Supplements
             </NavLink>
             {/* <NavLink
               onClick={() => setVisible(false)}
               to="/facilities"
-              className={({ isActive }) => (isActive ? 'text-green-400' : '')}
+              className={({ isActive }) => (isActive ? 'text-blue-600' : '')}
             >
               Facilities
             </NavLink> */}
             <NavLink
               onClick={() => setVisible(false)}
               to="/about"
-              className={({ isActive }) => (isActive ? 'text-green-400' : '')}
+              className={({ isActive }) => (isActive ? 'text-blue-600' : '')}
             >
               About
             </NavLink>
             <NavLink
               onClick={() => setVisible(false)}
               to="/contact"
-              className={({ isActive }) => (isActive ? 'text-green-400' : '')}
+              className={({ isActive }) => (isActive ? 'text-blue-600' : '')}
             >
               Contact
             </NavLink>
@@ -299,11 +304,11 @@ const Navbar = () => {
                     navigate('/orders');
                     setVisible(false);
                   }}
-                  className="text-white hover:text-green-400"
+                  className="text-slate-800 hover:text-blue-600"
                 >
                   Orders
                 </button>
-                <button onClick={logout} className="text-white hover:text-green-400">
+                <button onClick={logout} className="text-slate-800 hover:text-blue-600">
                   Logout
                 </button>
               </>
@@ -313,7 +318,7 @@ const Navbar = () => {
                   navigate('/login');
                   setVisible(false);
                 }}
-                className="bg-green-500 text-black py-2 px-4 rounded hover:bg-opacity-90"
+                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
               >
                 Login / Register
               </button>

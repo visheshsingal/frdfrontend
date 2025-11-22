@@ -11,10 +11,10 @@ const LatestCollection = () => {
 
   // Moving banner images (hardcoded)
   const movingImages = [
-    'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/1552252/pexels-photo-1552252.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/3763874/pexels-photo-3763874.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/7030166/pexels-photo-7030166.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    'https://images.pexels.com/photos/13534122/pexels-photo-13534122.jpeg',
+    'https://images.pexels.com/photos/12314077/pexels-photo-12314077.jpeg',
+    'https://images.pexels.com/photos/7690207/pexels-photo-7690207.jpeg',
+    'https://images.pexels.com/photos/5929236/pexels-photo-5929236.jpeg'
   ];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -80,12 +80,12 @@ const LatestCollection = () => {
 
   // ---------- Render ----------
   return (
-    <div className="my-20 bg-[#0B0C10] text-white px-4 py-14 rounded-xl shadow-xl border border-gray-800">
+    <div className="my-20 bg-white text-slate-800 px-4 py-14 rounded-xl shadow-xl border border-gray-200">
       
       {/* Title */}
       <div className="text-center mb-14">
         <Title text1="POPULAR" text2="SUPPLEMENTS" />
-        <p className="w-3/4 md:w-1/2 mx-auto text-sm text-gray-300 mt-4">
+        <p className="w-3/4 md:w-1/2 mx-auto text-sm text-slate-600 mt-4">
           Trusted by athletes and fitness enthusiasts — explore our most popular, performance-boosting supplements.
         </p>
       </div>
@@ -106,23 +106,23 @@ const LatestCollection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.06, duration: 0.4 }}
-                className="hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-[#1F2833] rounded-xl p-4 border border-gray-700 cursor-pointer"
+                className="hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-gray-50 rounded-xl p-4 border border-gray-200 cursor-pointer"
                 onClick={() => handleNavigation(`/product/${item._id}`)}
               >
                 <img
                   src={item?.image?.[0] || 'https://images.pexels.com/photos/7674485/pexels-photo-7674485.jpeg?auto=compress&cs=tinysrgb&w=1200'}
                   alt={item?.name || 'Supplement'}
-                  className="w-full h-40 object-contain mb-3 rounded"
+                  className="w-full h-40 object-cover mb-3 rounded"
                   loading="lazy"
                 />
-                <h4 className="text-sm font-semibold text-white line-clamp-2">
+                <h4 className="text-sm font-semibold text-slate-800 line-clamp-2">
                   {item?.name || 'Popular Supplement'}
                 </h4>
 
                 <div className="mt-2">
                   {hasDiscount ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-green-400 font-bold text-sm">
+                      <span className="text-blue-600 font-bold text-sm">
                         {currency} {formatPrice(discountedPrice)}
                       </span>
                       <span className="line-through text-gray-500 text-xs">
@@ -133,7 +133,7 @@ const LatestCollection = () => {
                       </span>
                     </div>
                   ) : (
-                    <span className="text-green-400 font-bold text-sm">
+                    <span className="text-blue-600 font-bold text-sm">
                       {currency} {formatPrice(price)}
                     </span>
                   )}
@@ -142,7 +142,7 @@ const LatestCollection = () => {
             );
           })
         ) : (
-          <p className="col-span-full text-center text-gray-400">
+          <p className="col-span-full text-center text-slate-600">
             Loading popular supplements...
           </p>
         )}
@@ -150,7 +150,7 @@ const LatestCollection = () => {
 
       {/* Moving Banner */}
       <motion.div
-        className="w-full max-w-6xl mx-auto overflow-hidden rounded-2xl shadow-2xl border border-gray-700"
+        className="w-full max-w-6xl mx-auto overflow-hidden rounded-2xl shadow-2xl border border-gray-200"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -171,15 +171,15 @@ const LatestCollection = () => {
           <div className="absolute inset-0 flex items-center justify-center p-8 text-center">
             <div>
               <motion.h3 
-                className="text-2xl sm:text-3xl font-bold text-white mb-4"
+                className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
-                Fuel Your <span className="text-green-400">Performance</span>
+                Fuel Your <span className="text-blue-600 font-extrabold drop-shadow">Performance</span>
               </motion.h3>
               <motion.p 
-                className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto"
+                className="text-sm sm:text-base text-white/90 drop-shadow max-w-2xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}

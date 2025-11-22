@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import { ShopContext } from '../context/ShopContext';
 
-const slides = [
+const staticSlides = [
   {
     title: "Fuel Your Ambition",
     desc: "Premium-grade supplements crafted to power your workout, boost recovery, and elevate performance.",
@@ -38,81 +40,144 @@ const categories = [
 const Hero = () => {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
+  const { backendUrl } = useContext(ShopContext);
+  const [slides, setSlides] = useState(staticSlides);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex(prev => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [slides.length]);
 
-  const current = slides[index];
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        if (!backendUrl) return;
+        const res = await axios.get(`${backendUrl}/api/banner/list`);
+        if (res.data.success && res.data.banners?.length > 0) {
+          const mapped = res.data.banners.map(b => ({
+            title: b.title || '',
+            desc: '',
+            image: b.image,
+            cta: 'Shop Now',
+            link: b.link || '/'
+          }));
+          setSlides(mapped);
+          setIndex(0);
+        }
+      } catch (e) {
+        // keep static
+      }
+    };
+    fetchBanners();
+  }, [backendUrl]);
+
+  const current = slides[index % slides.length];
+
+  const handleClick = (link) => {
+    if (!link) return;
+    const l = String(link).trim();
+    if (/^https?:\/\//i.test(l)) return window.open(l, '_blank');
+    if (l.startsWith('/')) return navigate(l);
+    if (/^[0-9a-fA-F]{24}$/.test(l)) return navigate(`/product/${l}`);
+    if (l.includes('/product/')) return navigate(l);
+    if (l.includes('.') && !l.includes(' ')) return window.open(`https://${l}`, '_blank');
+    navigate(l);
+  };
 
   return (
-    <div className="relative w-full bg-black text-white overflow-hidden">
-      {/* Hero Carousel */}
-      <div className="relative h-[500px] w-full">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={index}
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.8 }}
-          >
-            <img
-              src={current.image}
-              alt={current.title}
-              className="absolute inset-0 w-full h-full object-cover opacity-40"
-            />
-            <div className="relative z-10 max-w-4xl px-6 text-center">
-              <h1 className="text-4xl md:text-6xl font-extrabold mb-4 uppercase tracking-wide text-green-500">
-                {current.title}
-              </h1>
-              <p className="text-gray-200 text-lg md:text-xl mb-6">{current.desc}</p>
-              <button
-                onClick={() => navigate(current.link)}
-                className="px-8 py-4 bg-green-500 text-black font-bold rounded-full hover:bg-green-600 transition-colors duration-300 uppercase"
-              >
-                {current.cta}
-              </button>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+    <>
+      {/* HERO BANNER */}
+      <div className="relative w-full overflow-hidden">
 
-        {/* Slide Indicators */}
-        <div className="absolute bottom-4 w-full flex justify-center gap-2 z-20">
+        {/* Mobile: Full image without crop */}
+        <div className="block md:hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              onClick={() => handleClick(current.link)}
+              className="cursor-pointer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <img
+                src={current.image}
+                alt={current.title}
+                className="w-full h-auto object-contain block"
+                loading="eager"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Desktop: Full screen */}
+        <div className="hidden md:block h-screen">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              onClick={() => handleClick(current.link)}
+              className="absolute inset-0 cursor-pointer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <img
+                src={current.image}
+                alt={current.title}
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Indicators */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
           {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
-              className={`w-3 h-3 rounded-full ${i === index ? 'bg-green-500' : 'bg-gray-600'} transition-all`}
+              className={`w-3 h-3 rounded-full transition-all ${i === index ? 'bg-blue-600' : 'bg-gray-300'}`}
             />
           ))}
         </div>
       </div>
 
-      {/* Category Quick Links */}
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {categories.map((cat) => (
-          <button
-            key={cat.name}
-            onClick={() =>
-              navigate(cat.name === 'All' ? '/collection' : `/collection?category=${encodeURIComponent(cat.name)}`)
-            }
-            className="relative rounded-xl overflow-hidden group transform transition-transform hover:scale-105"
-          >
-            <img src={cat.image} alt={cat.name} className="w-full h-28 object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <span className="text-green-500 font-bold text-sm md:text-base tracking-wide uppercase">
-                {cat.name}
-              </span>
-            </div>
-          </button>
-        ))}
+      {/* CATEGORIES — ZERO GAP GUARANTEED */}
+      <div className="w-full bg-white -mb-1">
+        <div className="max-w-7xl mx-auto px-4 pt-6 pb-0">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((cat) => (
+              <button
+                key={cat.name}
+                onClick={() =>
+                  navigate(cat.name === 'All' ? '/collection' : `/collection?category=${encodeURIComponent(cat.name)}`)
+                }
+                className="relative rounded-xl overflow-hidden group transform transition-transform hover:scale-105"
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-28 md:h-32 object-cover brightness-75 group-hover:brightness-90 transition-all"
+                  loading="eager"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <span className="text-white font-bold text-sm md:text-base tracking-wide uppercase drop-shadow-md px-1 text-center">
+                    {cat.name}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Ab tera next section (FeaturedProducts, etc) bilkul chipak ke aayega! */}
+    </>
   );
 };
 

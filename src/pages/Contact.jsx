@@ -5,7 +5,7 @@ import NewsletterBox from '../components/NewsletterBox';
 
 const Contact = () => {
   return (
-    <div className="bg-[#0B0C10] text-white overflow-hidden">
+    <div className="bg-white text-slate-800 overflow-hidden">
       {/* Hero Banner */}
       <motion.div
         className="relative w-full h-[50vh] flex items-center justify-center"
@@ -16,10 +16,11 @@ const Contact = () => {
         <img
           src="https://images.pexels.com/photos/4164767/pexels-photo-4164767.jpeg?auto=compress&cs=tinysrgb&w=1600"
           alt="Contact Banner"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <h1 className="relative z-10 text-5xl font-extrabold tracking-wide">
-          CONTACT <span className="text-green-400">US</span>
+        <div className="absolute inset-0 bg-black bg-opacity-30" />
+        <h1 className="relative z-10 text-5xl font-extrabold tracking-wide text-white">
+          CONTACT <span className="text-blue-400">US</span>
         </h1>
       </motion.div>
 
@@ -39,7 +40,7 @@ const Contact = () => {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <p className="font-semibold text-2xl text-green-400">Our Store</p>
+          <p className="font-semibold text-2xl text-blue-600">Our Store</p>
           <p>
             FRD Nutrition <br />
             Dev Colony Gali, 1, Delhi Rd, <br />
@@ -49,12 +50,12 @@ const Contact = () => {
             +91 92781 60000 <br />
             frdgym.com
           </p>
-          <p className="font-semibold text-2xl text-green-400">
+          <p className="font-semibold text-2xl text-blue-600">
             Careers at FRD Nutrition
           </p>
           <p>Join our team and grow with the leaders in sports nutrition.</p>
           <motion.button
-            className="border border-green-400 px-8 py-3 text-sm font-semibold hover:bg-green-400 hover:text-black transition rounded-lg"
+            className="border border-blue-600 px-8 py-3 text-sm font-semibold hover:bg-blue-600 hover:text-white transition rounded-lg"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

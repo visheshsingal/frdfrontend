@@ -4,16 +4,18 @@ import LatestCollection from '../components/LatestCollection';
 import BestSeller from '../components/BestSeller';
 import OurPolicy from '../components/OurPolicy';
 import NewsletterBox from '../components/NewsletterBox';
+import MediaGallery from '../components/MediaGallery';
 
 const Home = () => {
   return (
-    <div className="bg-[#0B0C10] text-white min-h-screen">
+    <div className="bg-white text-slate-800 min-h-screen">
       <Hero />
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <LatestCollection />
         <BestSeller />
-        <OurPolicy />
-        <NewsletterBox />
+  <OurPolicy />
+  <MediaGallery />
+  <NewsletterBox />
       </div>
     </div>
   );
