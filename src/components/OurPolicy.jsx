@@ -6,14 +6,14 @@ const OurPolicy = () => {
   const policies = [
     {
       icon: assets.exchange_icon,
-      title: "Easy Exchange",
-      description: "Hassle-free exchange on all orders",
+      title: "Quality Guarantee",
+      description: "We deliver only the best quality products",
       delay: 0
     },
     {
       icon: assets.quality_icon,
-      title: "7 Days Returns",
-      description: "Free returns within 7 days",
+      title: "Fast Delivery",
+      description: "Quick and reliable delivery to your doorstep",
       delay: 0.1
     },
     {
