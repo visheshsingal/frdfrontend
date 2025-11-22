@@ -43,13 +43,15 @@ const Hero = () => {
   const { backendUrl } = useContext(ShopContext);
   const [slides, setSlides] = useState(staticSlides);
 
+  // Auto-slide every 6 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setIndex(prev => (prev + 1) % slides.length);
-    }, 5000);
+      setIndex((prev) => (prev + 1) % slides.length);
+    }, 6000);
     return () => clearInterval(interval);
   }, [slides.length]);
 
+  // Fetch dynamic banners
   useEffect(() => {
     const fetchBanners = async () => {
       try {
@@ -67,13 +69,13 @@ const Hero = () => {
           setIndex(0);
         }
       } catch (e) {
-        // keep static
+        console.log("Banner fetch failed, using static slides");
       }
     };
     fetchBanners();
   }, [backendUrl]);
 
-  const current = slides[index % slides.length];
+  const current = slides[index];
 
   const handleClick = (link) => {
     if (!link) return;
@@ -86,87 +88,115 @@ const Hero = () => {
     navigate(l);
   };
 
+  // Preload next image for smoother transition
+  useEffect(() => {
+    const nextIndex = (index + 1) % slides.length;
+    const img = new Image();
+    img.src = slides[nextIndex].image;
+  }, [index, slides]);
+
   return (
     <>
-      {/* HERO BANNER */}
-      <div className="relative w-full overflow-hidden">
+      {/* HERO SLIDER - Super Smooth */}
+      <div className="relative w-full overflow-hidden bg-black">
 
-        {/* Mobile: Full image without crop */}
+        {/* Desktop & Tablet - Full Screen */}
+        <div className="hidden md:block relative h-screen">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              className="absolute inset-0 cursor-pointer"
+              onClick={() => handleClick(current.link)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                opacity: { duration: 1.2 },
+                ease: "easeInOut"
+              }}
+            >
+              {/* Subtle zoom effect */}
+              <motion.img
+                src={current.image}
+                alt={current.title}
+                className="w-full h-full object-cover"
+                initial={{ scale: 1.08 }}
+                animate={{ scale: 1 }}
+                transition={{
+                  duration: 12,
+                  ease: "easeOut"
+                }}
+                loading="eager"
+              />
+              {/* Dark overlay for better text readability (optional) */}
+              <div className="absolute inset-0 bg-black bg-opacity-30" />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Mobile - Full Width Image */}
         <div className="block md:hidden">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
-              onClick={() => handleClick(current.link)}
               className="cursor-pointer"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <img
-                src={current.image}
-                alt={current.title}
-                className="w-full h-auto object-contain block"
-                loading="eager"
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Desktop: Full screen */}
-        <div className="hidden md:block h-screen">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
               onClick={() => handleClick(current.link)}
-              className="absolute inset-0 cursor-pointer"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
             >
-              <img
+              <motion.img
                 src={current.image}
                 alt={current.title}
-                className="w-full h-full object-cover"
+                className="w-full h-auto object-cover"
+                initial={{ scale: 1.05 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 10, ease: "easeOut" }}
                 loading="eager"
               />
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Indicators */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
+        {/* Smooth Dots Indicator */}
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20">
           {slides.map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
-              className={`w-3 h-3 rounded-full transition-all ${i === index ? 'bg-blue-600' : 'bg-gray-300'}`}
+              className={`transition-all duration-500 rounded-full ${
+                i === index
+                  ? "w-10 h-2 bg-white shadow-lg"
+                  : "w-2 h-2 bg-white bg-opacity-50"
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
       </div>
 
-      {/* CATEGORIES — ZERO GAP GUARANTEED */}
-      <div className="w-full bg-white -mb-1">
-        <div className="max-w-7xl mx-auto px-4 pt-6 pb-0">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* CATEGORIES SECTION - Zero Gap */}
+      <div className="w-full bg-white">
+        <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
             {categories.map((cat) => (
               <button
                 key={cat.name}
                 onClick={() =>
                   navigate(cat.name === 'All' ? '/collection' : `/collection?category=${encodeURIComponent(cat.name)}`)
                 }
-                className="relative rounded-xl overflow-hidden group transform transition-transform hover:scale-105"
+                className="relative rounded-2xl overflow-hidden group shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
               >
                 <img
                   src={cat.image}
                   alt={cat.name}
-                  className="w-full h-28 md:h-32 object-cover brightness-75 group-hover:brightness-90 transition-all"
+                  className="w-full h-32 md:h-40 object-cover brightness-90 group-hover:brightness-100 transition-all duration-500"
                   loading="eager"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm md:text-base tracking-wide uppercase drop-shadow-md px-1 text-center">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-0 right-0 text-center">
+                  <span className="text-white font-bold text-lg tracking-wider uppercase drop-shadow-2xl">
                     {cat.name}
                   </span>
                 </div>
@@ -175,8 +205,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-
-      {/* Ab tera next section (FeaturedProducts, etc) bilkul chipak ke aayega! */}
     </>
   );
 };
