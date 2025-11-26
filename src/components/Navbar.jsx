@@ -172,6 +172,12 @@ const Navbar = () => {
                 <div className="hidden group-hover:block absolute right-0 pt-2 z-20">
                   <div className="flex flex-col gap-2 w-48 py-3 px-4 bg-white text-slate-800 rounded shadow-lg border border-gray-200">
                     <p
+                      onClick={() => navigate('/profile')}
+                      className="cursor-pointer hover:text-blue-600 text-sm py-1"
+                    >
+                      Profile
+                    </p>
+                    <p
                       onClick={() => navigate('/orders')}
                       className="cursor-pointer hover:text-blue-600 text-sm py-1"
                     >
@@ -298,7 +304,16 @@ const Navbar = () => {
             </NavLink>
 
             {token ? (
-              <>
+                <>
+                <button
+                  onClick={() => {
+                    navigate('/profile');
+                    setVisible(false);
+                  }}
+                  className="text-slate-800 hover:text-blue-600"
+                >
+                  Profile
+                </button>
                 <button
                   onClick={() => {
                     navigate('/orders');
@@ -308,7 +323,7 @@ const Navbar = () => {
                 >
                   Orders
                 </button>
-                <button onClick={logout} className="text-slate-800 hover:text-blue-600">
+                <button onClick={() => { logout(); setVisible(false); }} className="text-slate-800 hover:text-blue-600">
                   Logout
                 </button>
               </>

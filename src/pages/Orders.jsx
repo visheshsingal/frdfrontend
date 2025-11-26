@@ -177,7 +177,7 @@ const Orders = () => {
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 pb-4 border-b border-gray-200">
                 <div className="w-full">
                   <h3 className="text-blue-600 font-bold text-lg sm:text-xl mb-2">
-                    Order #{(order._id || '').substring(0, 8).toUpperCase()}
+                    Order #{(order.orderNo !== undefined && order.orderNo !== null) ? order.orderNo : (order._id || '').substring(0, 8).toUpperCase()}
                   </h3>
                   <div className="text-slate-700 space-y-1 text-xs sm:text-sm">
                     <p>📅 {new Date(order.date).toLocaleDateString('en-IN')}</p>

@@ -1,32 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+// removed framer-motion to eliminate slide animations
 import axios from 'axios';
 import { ShopContext } from '../context/ShopContext';
 
-const staticSlides = [
-  {
-    title: "Fuel Your Ambition",
-    desc: "Premium-grade supplements crafted to power your workout, boost recovery, and elevate performance.",
-    image: "https://images.unsplash.com/photo-1595348020949-87cdfbb44174?q=80&w=2070&auto=format&fit=crop",
-    cta: "Shop Now",
-    link: "/collection",
-  },
-  {
-    title: "Strength Meets Science",
-    desc: "From whey protein to creatine, our supplements are engineered for champions — just like you.",
-    image: "https://images.unsplash.com/photo-1579758629938-03607ccdbaba?q=80&w=2070&auto=format&fit=crop",
-    cta: "Explore Protein",
-    link: "/collection?category=Protein",
-  },
-  {
-    title: "Recovery. Reload. Repeat.",
-    desc: "Faster recovery, better performance — get the amino acids and nutrients your muscles crave.",
-    image: "https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=2070&auto=format&fit=crop",
-    cta: "Browse BCAA",
-    link: "/collection?category=BCAA",
-  },
-];
+// We rely solely on backend-provided banners so only admin-uploaded images are shown.
 
 const categories = [
   { name: 'Protein', image: 'https://invigor8.com/cdn/shop/articles/image_2024-01-23_162306644_782x.png?v=1706023398' },
@@ -41,10 +19,11 @@ const Hero = () => {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const { backendUrl } = useContext(ShopContext);
-  const [slides, setSlides] = useState(staticSlides);
+  const [slides, setSlides] = useState([]);
 
-  // Auto-slide every 6 seconds
+  // Auto-slide every 6 seconds (only when we have slides)
   useEffect(() => {
+    if (!slides || slides.length <= 1) return;
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % slides.length);
     }, 6000);
@@ -90,6 +69,7 @@ const Hero = () => {
 
   // Preload next image for smoother transition
   useEffect(() => {
+    if (!slides || slides.length === 0) return;
     const nextIndex = (index + 1) % slides.length;
     const img = new Image();
     img.src = slides[nextIndex].image;
@@ -100,80 +80,49 @@ const Hero = () => {
       {/* HERO SLIDER - Super Smooth */}
       <div className="relative w-full overflow-hidden bg-black">
 
-        {/* Desktop & Tablet - Full Screen */}
-        <div className="hidden md:block relative h-screen">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
-              className="absolute inset-0 cursor-pointer"
-              onClick={() => handleClick(current.link)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                opacity: { duration: 1.2 },
-                ease: "easeInOut"
-              }}
-            >
-              {/* Subtle zoom effect */}
-              <motion.img
-                src={current.image}
-                alt={current.title}
-                className="w-full h-full object-cover"
-                initial={{ scale: 1.08 }}
-                animate={{ scale: 1 }}
-                transition={{
-                  duration: 12,
-                  ease: "easeOut"
-                }}
-                loading="eager"
-              />
-              {/* Dark overlay for better text readability (optional) */}
-              <div className="absolute inset-0 bg-black bg-opacity-30" />
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        {/* Desktop & Tablet - Full Screen (render only when we have slides) */}
+        {slides && slides.length > 0 && (
+          <div className="hidden md:block relative h-[740px]">
+            <div className="absolute inset-0 cursor-pointer" onClick={() => handleClick(current.link)}>
+              <img src={current.image} alt={current.title} className="w-full h-full object-cover" loading="eager" />
+            </div>
+          </div>
+        )}
 
-        {/* Mobile - Full Width Image */}
-        <div className="block md:hidden">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
-              className="cursor-pointer"
-              onClick={() => handleClick(current.link)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
-            >
-              <motion.img
-                src={current.image}
-                alt={current.title}
-                className="w-full h-auto object-cover"
-                initial={{ scale: 1.05 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 10, ease: "easeOut" }}
-                loading="eager"
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        {/* Mobile - only render when we have slides */}
+        {slides && slides.length > 0 && (
+          <div className="block md:hidden">
+            <div className="cursor-pointer" onClick={() => handleClick(current.link)}>
+              <img src={current.image} alt={current.title} className="w-full h-auto object-cover" loading="eager" />
+            </div>
+          </div>
+        )}
 
-        {/* Smooth Dots Indicator */}
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20">
-          {slides.map((_, i) => (
+        {/* Dots indicator removed as requested */}
+        {/* Prev / Next buttons (right-bottom) */}
+        {slides && slides.length > 1 && (
+          <div className="absolute bottom-6 right-6 flex flex-row items-center gap-2 z-30">
             <button
-              key={i}
-              onClick={() => setIndex(i)}
-              className={`transition-all duration-500 rounded-full ${
-                i === index
-                  ? "w-10 h-2 bg-white shadow-lg"
-                  : "w-2 h-2 bg-white bg-opacity-50"
-              }`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
+              onClick={() => setIndex((prev) => (prev - 1 + slides.length) % slides.length)}
+              className="w-8 h-8 rounded-full bg-white shadow flex items-center justify-center hover:scale-105 transition-transform"
+              aria-label="Previous slide"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-4 h-4 text-gray-800">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => setIndex((prev) => (prev + 1) % slides.length)}
+              className="w-8 h-8 rounded-full bg-white shadow flex items-center justify-center hover:scale-105 transition-transform"
+              aria-label="Next slide"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-4 h-4 text-gray-800">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* CATEGORIES SECTION - Zero Gap */}

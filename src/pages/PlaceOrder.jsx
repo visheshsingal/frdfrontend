@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 import axios from 'axios'
 
 const PlaceOrder = () => {
-  const [method, setMethod] = useState('cod')
+  const [method, setMethod] = useState('razorpay')
   const [isProcessing, setIsProcessing] = useState(false)
 
   const {
@@ -263,11 +263,13 @@ const PlaceOrder = () => {
         return;
       }
 
+      const razorpayKey = response.data.key || 'rzp_test_RO8kaE9GNU9MPE'
+
       const options = {
-        key: 'rzp_test_RO8kaE9GNU9MPE',
+        key: razorpayKey,
         amount: Math.round(totalAmount * 100),
         currency: 'INR',
-        name: 'Fitness Store',
+        name: 'FRD Nutrition Premium',
         description: 'Order Payment',
         order_id: response.data.order.id,
         handler: async function (paymentResponse) {
@@ -359,11 +361,8 @@ const PlaceOrder = () => {
     }
 
     try {
-      if (method === 'cod') {
-        await placeCODOrder();
-      } else if (method === 'razorpay') {
-        await payWithRazorpay();
-      }
+      // Only Razorpay payment is supported now
+      await payWithRazorpay();
     } catch (error) {
       console.error('Order placement error:', error);
       toast.error('Failed to place order');
@@ -421,12 +420,10 @@ const PlaceOrder = () => {
         <div className="mt-12">
           <Title text1="PAYMENT" text2="METHOD" />
           <div className="flex gap-3 flex-col lg:flex-row mt-4">
-            {['razorpay','cod'].map(opt => (
-              <div key={opt} onClick={() => setMethod(opt)} className={`flex items-center gap-3 border p-2 px-3 cursor-pointer rounded transition hover:bg-gray-50 ${method===opt?'border-blue-600':'border-blue-600'}`}>
-                <span className={`min-w-4 h-4 border rounded-full ${method===opt?'bg-blue-600':'border-blue-600'}`}></span>
-                {opt!=='cod'?<img className="h-5 mx-4" src={assets.razorpay_logo} alt="Razorpay"/>:<p className="text-slate-600 text-sm mx-4">Cash on Delivery</p>}
-              </div>
-            ))}
+            <div onClick={() => setMethod('razorpay')} className={`flex items-center gap-3 border p-2 px-3 cursor-pointer rounded transition hover:bg-gray-50 ${method==='razorpay'?'border-blue-600':'border-blue-600'}`}>
+              <span className={`min-w-4 h-4 border rounded-full ${method==='razorpay'?'bg-blue-600':'border-blue-600'}`}></span>
+              <img className="h-5 mx-4" src={assets.razorpay_logo} alt="Razorpay"/>
+            </div>
           </div>
 
           <div className="w-full text-end mt-8">

@@ -14,7 +14,7 @@ const About = () => {
         transition={{ duration: 1 }}
       >
         <img
-          src="https://images.pexels.com/photos/2261482/pexels-photo-2261482.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          src="https://images.unsplash.com/photo-1745851211804-409acbb4b597?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="Supplements Hero"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -28,12 +28,13 @@ const About = () => {
       {/* Dynamic Image Section */}
       <div className="grid grid-cols-2 gap-6 px-6 md:px-20 py-16">
         {[
-          'https://images.pexels.com/photos/414029/pexels-photo-414029.jpeg?auto=compress&cs=tinysrgb&w=800',
-          'https://images.pexels.com/photos/791763/pexels-photo-791763.jpeg?auto=compress&cs=tinysrgb&w=800',
-          'https://images.pexels.com/photos/7674486/pexels-photo-7674486.jpeg?auto=compress&cs=tinysrgb&w=800',
-          'https://images.pexels.com/photos/6453398/pexels-photo-6453398.jpeg?auto=compress&cs=tinysrgb&w=800',
+          'https://images.unsplash.com/photo-1630065612426-e03d3fec7348?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          'https://images.unsplash.com/photo-1630065612476-294f637f0248?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          'https://images.unsplash.com/photo-1636432246445-dff2b6cafbf3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          'https://images.unsplash.com/photo-1630415188550-9e454489ce3a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         ].map((src, idx) => (
           <motion.img
+
             key={idx}
             src={src}
             alt={`Gallery ${idx}`}

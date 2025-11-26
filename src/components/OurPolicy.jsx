@@ -5,13 +5,13 @@ import { motion } from 'framer-motion';
 const OurPolicy = () => {
   const policies = [
     {
-      icon: assets.exchange_icon,
+      icon: assets.quality_icon,
       title: "Quality Guarantee",
       description: "We deliver only the best quality products",
       delay: 0
     },
     {
-      icon: assets.quality_icon,
+      icon: assets.cart_icon,
       title: "Fast Delivery",
       description: "Quick and reliable delivery to your doorstep",
       delay: 0.1
@@ -57,7 +57,7 @@ const OurPolicy = () => {
                 ) : (
                   <img
                     src={policy.icon}
-                    className="w-8 h-8 filter brightness-0 transition-all duration-300"
+                    className={policy.title === '24/7 Support' ? "w-8 h-8 filter brightness-0 transition-all duration-300" : "w-10 h-10 transition-all duration-300"}
                     alt={policy.title}
                   />
                 )}

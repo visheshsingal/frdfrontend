@@ -14,7 +14,6 @@ const Collection = () => {
 
   const location = useLocation();
 
-  // Read category from URL if present
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cat = params.get('category');
@@ -22,20 +21,11 @@ const Collection = () => {
   }, [location.search]);
 
   const categories = [
-    'Protein',
-    'Creatine',
-    'BCAA',
-    'Mass Gainer',
-    'Pre Workout',
-    'Post Workout',
-    'Vitamins'
+    'Protein', 'Creatine', 'BCAA', 'Mass Gainer', 'Pre Workout', 'Post Workout', 'Vitamins'
   ];
 
   const subCategories = [
-    'Popular',
-    'Just Launched',
-    "Editor's Choice",
-    'Trending'
+    'Popular', 'Just Launched', "Editor's Choice", 'Trending'
   ];
 
   const applyFilters = () => {
@@ -143,7 +133,8 @@ const Collection = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {/* YEHI CHANGE KIYA HAI - BAS GRID CLASSES KO THODA BETTER KIYA */}
+      <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
         {filteredProducts.length ? (
           filteredProducts.map((product) => {
             const finalPrice = product.discount > 0
@@ -159,11 +150,14 @@ const Collection = () => {
                 image={product.image}
                 originalPrice={product.price}
                 discount={product.discount}
+                showStars={false}
               />
             );
           })
         ) : (
-          <p className="text-gray-500 col-span-full text-center">No products found.</p>
+          <p className="col-span-full text-center text-gray-500 py-10 text-lg">
+            No products found.
+          </p>
         )}
       </div>
     </div>

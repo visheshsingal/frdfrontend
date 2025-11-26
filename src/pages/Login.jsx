@@ -41,6 +41,39 @@ const Login = () => {
     }
   }, [token, navigate]);
 
+  // Auth0 config (Vite env vars)
+  const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN;
+  const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID;
+  const AUTH0_REDIRECT_URI = import.meta.env.VITE_AUTH0_REDIRECT_URI || `${window.location.origin}/auth0/callback`;
+
+  const handleAuth0Redirect = () => {
+    if (!AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
+      toast.error('Auth0 not configured on client. Ask admin to set VITE_AUTH0_* env vars.');
+      return;
+    }
+
+    // Normalize domain: allow values with or without protocol and trailing slash
+    const domainClean = AUTH0_DOMAIN.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+    // Basic validation to avoid redirecting to a placeholder/unresolvable host
+    const domainValid = /^[a-z0-9.-]*auth0\.com$/i.test(domainClean);
+    if (!domainValid) {
+      toast.error('Invalid Auth0 domain configured. Please set `VITE_AUTH0_DOMAIN` to your Auth0 tenant domain (example: dev-abc123.us.auth0.com)');
+      return;
+    }
+
+    const params = new URLSearchParams({
+      client_id: AUTH0_CLIENT_ID,
+      response_type: 'id_token',
+      scope: 'openid profile email',
+      redirect_uri: AUTH0_REDIRECT_URI,
+      nonce: Math.random().toString(36).slice(2),
+      prompt: 'select_account',
+      connection: 'google-oauth2'
+    });
+    // Redirect to Auth0 Universal Login with Google connection (use cleaned domain)
+    window.location.href = `https://${domainClean}/authorize?${params.toString()}`;
+  };
+
   // Image carousel effect
   useEffect(() => {
     const interval = setInterval(() => {
@@ -177,16 +210,28 @@ const Login = () => {
   };
 
   const handleVerifyOtp = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!otpValue || !otpEmail) return toast.error('Please enter the OTP');
     setIsLoading(true);
     try {
-  const endpoint = otpPurpose === 'login' ? '/api/user/verify-login-otp' : '/api/user/verify-otp';
-  const res = await axios.post(`${backendUrl}${endpoint}`, { email: otpEmail, otp: otpValue });
+      let endpoint;
+      if (otpPurpose === 'login') endpoint = '/api/user/verify-login-otp';
+      else if (otpPurpose === 'signup') endpoint = '/api/user/verify-otp';
+      else if (otpPurpose === 'forgot') endpoint = '/api/user/verify-forgot-otp';
+
+      const res = await axios.post(`${backendUrl}${endpoint}`, { email: otpEmail, otp: otpValue });
       if (res.data.success) {
-        toast.success('Email verified. Logged in.');
-        setShowOtpModal(false);
-        handleAuthSuccess(res.data);
+        if (otpPurpose === 'forgot') {
+          // For forgot-password, backend returns a resetToken
+          setResetToken(res.data.resetToken || '');
+          toast.success('OTP verified. You can now reset your password.');
+          // keep modal closed if user used inline OTP; otherwise close popup
+          setShowOtpModal(false);
+        } else {
+          toast.success('Email verified. Logged in.');
+          setShowOtpModal(false);
+          handleAuthSuccess(res.data);
+        }
       } else {
         toast.error(res.data.message || 'Invalid OTP');
       }
@@ -196,6 +241,12 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleOtpChange = (e) => {
+    // keep only digits in OTP input
+    const v = (e && e.target && e.target.value) ? e.target.value.replace(/[^0-9]/g, '') : '';
+    setOtpValue(v);
   };
 
   const handleSendLoginOtp = async () => {
@@ -231,8 +282,10 @@ const Login = () => {
       });
 
       if (response.data.success) {
-        setResetToken(response.data.resetToken);
-        toast.success('Password reset initiated. You can now set your new password.');
+        // New flow: backend sends OTP to email. Prompt user to enter OTP.
+        setOtpPurpose('forgot');
+        setOtpEmail(formData.email);
+        toast.info('Password reset code sent to your email. Please enter it to continue.');
       } else {
         toast.error(response.data.message || 'Failed to initiate password reset');
       }
@@ -447,6 +500,17 @@ const Login = () => {
                         <span>{currentState === 'Login' ? 'Sign in' : 'Sign up'}</span>
                       )}
                   </button>
+                  {/* Auth0 social login button (Google) */}
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={handleAuth0Redirect}
+                      className="group relative w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                    >
+                      <img src="/assets/google-logo.png" alt="Google" className="h-5 w-5" onError={(e)=>{e.target.style.display='none'}} />
+                      <span>Continue with Google</span>
+                    </button>
+                  </div>
                 </div>
               </form>
               {/* Extra option: send OTP for login */}
@@ -463,7 +527,7 @@ const Login = () => {
                         type="text"
                         maxLength={6}
                         value={otpValue}
-                        onChange={(e) => setOtpValue(e.target.value.replace(/[^0-9]/g, ''))}
+                        onChange={handleOtpChange}
                         className="w-full px-3 py-2 rounded mb-3 text-black bg-blue-50 border border-blue-100 placeholder-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Enter OTP"
                       />
@@ -482,7 +546,7 @@ const Login = () => {
                 className="mt-8 space-y-6" 
                 onSubmit={resetToken ? handleResetPassword : handleForgotPassword}
               >
-                {!resetToken ? (
+                {!resetToken ? (<>
                   <div className="rounded-md shadow-sm -space-y-px">
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-slate-600 mb-1">Email address</label>
@@ -499,6 +563,24 @@ const Login = () => {
                       />
                     </div>
                   </div>
+                  
+                  {otpPurpose === 'forgot' && otpEmail && otpEmail === formData.email && !resetToken && (
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">Enter OTP</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          maxLength={6}
+                          value={otpValue}
+                          onChange={handleOtpChange}
+                          className="flex-1 px-3 py-2 rounded text-black bg-blue-50 border border-blue-100 placeholder-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Enter OTP"
+                        />
+                        <button type="button" onClick={handleVerifyOtp} className="py-2 px-4 bg-blue-600 text-white rounded font-medium">Verify</button>
+                      </div>
+                    </div>
+                  )}
+                  </>
                 ) : (
                   <>
                     <div className="rounded-md shadow-sm -space-y-px">

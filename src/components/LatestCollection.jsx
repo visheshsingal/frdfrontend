@@ -121,7 +121,7 @@ const LatestCollection = () => {
 
                 <div className="mt-2">
                   {hasDiscount ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-blue-600 font-bold text-sm">
                         {currency} {formatPrice(discountedPrice)}
                       </span>
