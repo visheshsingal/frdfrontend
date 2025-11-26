@@ -151,6 +151,7 @@ const Collection = () => {
                 originalPrice={product.price}
                 discount={product.discount}
                 showStars={false}
+                showDiscountBadge={false}
               />
             );
           })

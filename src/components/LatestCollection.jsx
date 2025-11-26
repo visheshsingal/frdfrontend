@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import Title from './Title';
+import ProductItem from './ProductItem';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -106,38 +107,18 @@ const LatestCollection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.06, duration: 0.4 }}
-                className="hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-gray-50 rounded-xl p-4 border border-gray-200 cursor-pointer"
-                onClick={() => handleNavigation(`/product/${item._id}`)}
+                className="transition-all duration-300"
               >
-                <img
-                  src={item?.image?.[0] || 'https://images.pexels.com/photos/7674485/pexels-photo-7674485.jpeg?auto=compress&cs=tinysrgb&w=1200'}
-                  alt={item?.name || 'Supplement'}
-                  className="w-full h-40 object-cover mb-3 rounded"
-                  loading="lazy"
+                <ProductItem
+                  id={item?._id || index}
+                  image={Array.isArray(item?.image) ? item.image : [item?.image]}
+                  name={item?.name || 'Popular Supplement'}
+                  price={formatPrice(discountedPrice)}
+                  originalPrice={formatPrice(price)}
+                  discount={discount}
+                  showStars={false}
+                  showDiscountBadge={false}
                 />
-                <h4 className="text-sm font-semibold text-slate-800 line-clamp-2">
-                  {item?.name || 'Popular Supplement'}
-                </h4>
-
-                <div className="mt-2">
-                  {hasDiscount ? (
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-blue-600 font-bold text-sm">
-                        {currency} {formatPrice(discountedPrice)}
-                      </span>
-                      <span className="line-through text-gray-500 text-xs">
-                        {currency} {formatPrice(price)}
-                      </span>
-                      <span className="text-red-400 text-xs font-semibold">
-                        -{discount}%
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-blue-600 font-bold text-sm">
-                      {currency} {formatPrice(price)}
-                    </span>
-                  )}
-                </div>
               </motion.div>
             );
           })

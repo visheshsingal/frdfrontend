@@ -28,7 +28,7 @@ const ViewIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
-const ProductItem = ({ id, image, name, price, originalPrice, discount, reviews = [], showStars = true }) => {
+const ProductItem = ({ id, image, name, price, originalPrice, discount, reviews = [], showStars = true, showDiscountBadge = true }) => {
   const { currency } = useContext(ShopContext);
 
   const avg = reviews && reviews.length ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length) : 0;
@@ -75,7 +75,7 @@ const ProductItem = ({ id, image, name, price, originalPrice, discount, reviews 
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold text-gray-900">{currency}{price}</span>
-          {discount > 0 && (
+          {discount > 0 && showDiscountBadge && (
             <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
               -{discount}%
             </span>
