@@ -37,15 +37,15 @@ const ProductItem = ({ id, image, name, price, originalPrice, discount, reviews 
     <Link
       onClick={() => scrollTo(0, 0)}
       to={`/product/${id}`}
-      className="block bg-white border border-gray-200 rounded-2xl hover:shadow-2xl hover:border-blue-500/30 transition-all duration-300 ease-out p-4 text-slate-800 relative overflow-hidden group"
+      className="block bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-2xl hover:border-blue-500/30 transition-all duration-300 ease-out p-4 text-slate-800 relative overflow-hidden group"
     >
       {/* Dark Blue Gradient Overlay on Hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 via-blue-500/0 to-blue-700/0 group-hover:from-blue-600/5 group-hover:via-blue-500/3 group-hover:to-blue-700/8 transition-all duration-300 rounded-2xl -z-10" />
       
       {/* View Icon - Card Bottom Right (Fixed Position) */}
-      <div className="absolute bottom-4 right-4 z-10 transform group-hover:scale-110 transition-all duration-300">
-        <div className="bg-white p-2 rounded-full shadow-lg border border-gray-200 group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-blue-50 group-hover:border-blue-200">
-          <ViewIcon className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
+      <div className="absolute right-3 top-3 sm:bottom-4 sm:right-4 sm:top-auto z-10 transform group-hover:scale-110 transition-all duration-300">
+        <div className="bg-white p-1 sm:p-2 rounded-full shadow-lg border border-gray-200 group-hover:bg-gradient-to-br group-hover:from-white group-hover:to-blue-50 group-hover:border-blue-200">
+          <ViewIcon className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
         </div>
       </div>
 
